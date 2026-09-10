@@ -1,5 +1,8 @@
 # QRank semantic verifier
 
+Usage guides: [dataset processing](docs/verifier-dataset.md) and
+[deployment in an application](docs/verifier-deployment.md).
+
 Applications can call the verifier directly, with no dataset setup:
 
 ```python

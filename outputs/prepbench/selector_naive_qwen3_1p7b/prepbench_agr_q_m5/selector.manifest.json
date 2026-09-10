@@ -1,0 +1,47 @@
+{
+  "created_utc": "2026-09-10T07:36:16.151653+00:00",
+  "dataset": {
+    "name": "prepbench_agr_q_m5",
+    "path": "dataset/processed/prepbench_agr_q_m5",
+    "split": "test",
+    "limit": null
+  },
+  "backend": {
+    "backend": "transformers",
+    "model": "Qwen/Qwen3-1.7B",
+    "revision": "main",
+    "resolved_revision": "70d244cc86ccca08cf5af4e1e306ecf908b1ad5e",
+    "device": "cuda",
+    "dtype": "torch.bfloat16",
+    "temperature": 0.0,
+    "max_tokens": 128,
+    "enable_thinking": false,
+    "top_p": 0.8,
+    "top_k": 20,
+    "transformers_version": "4.57.6"
+  },
+  "batch_size": 4,
+  "oracle_policy": {
+    "confidence_threshold": 0.6,
+    "budget_ratio": 0.2,
+    "budget_count": null
+  },
+  "n_rows": 306,
+  "status_counts": {
+    "ok": 295,
+    "oracle": 0,
+    "fallback": 11,
+    "no_valid_candidates": 0
+  },
+  "metrics": {
+    "n_rows_with_labels": 11,
+    "llm_only_accuracy": null,
+    "llm_only_denominator": 0,
+    "end_to_end_accuracy": 1.0,
+    "end_to_end_denominator": 11,
+    "oracle_usage_rate": 0.03594771241830065,
+    "oracle_calls": 11,
+    "oracle_requested": 11
+  },
+  "selection_file": "selections.jsonl"
+}

@@ -14,6 +14,7 @@ dependencies = [
 
 [project.scripts]
 qrank-verifier = "qrank.verifier.cli:main"
+qrank-selector = "qrank.baselines.selector.cli:main"
 
 [build-system]
 requires = ["uv_build>=0.9.0,<0.10.0"]

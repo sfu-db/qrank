@@ -1,0 +1,30 @@
+[project]
+name = "qrank"
+version = "0.1.0"
+description = "Semantic verification of candidate SQL answers with Qwen3"
+readme = "README.md"
+requires-python = ">=3.12,<3.14"
+dependencies = [
+    "accelerate==1.15.0",
+    "datasets==4.8.5",
+    "hf-transfer==0.1.9",
+    "torch==2.8.0",
+    "transformers==4.57.6",
+]
+
+[project.scripts]
+qrank-verifier = "qrank.semantic_verifier:main"
+
+[build-system]
+requires = ["uv_build>=0.9.0,<0.10.0"]
+build-backend = "uv_build"
+
+# Match the CUDA 12.8 runtime used by this workspace's working GPU setup.
+[tool.uv.sources]
+torch = [{ index = "pytorch-cu128", marker = "sys_platform == 'linux' or sys_platform == 'win32'" }]
+
+[[tool.uv.index]]
+name = "pytorch-cu128"
+url = "https://download.pytorch.org/whl/cu128"
+explicit = true
+

@@ -1,0 +1,63 @@
+{
+  "source": "/root/qrank/dataset/bird_dev_agr_q_sql_af_AQXRO_ss_m5",
+  "split": "test",
+  "limit": null,
+  "created_utc": "2026-09-10T05:41:57.356477+00:00",
+  "prompt_version": "qrank-svem-semantic-v1",
+  "backend": {
+    "backend": "transformers",
+    "model": "Qwen/Qwen3-1.7B",
+    "revision": "main",
+    "resolved_revision": "70d244cc86ccca08cf5af4e1e306ecf908b1ad5e",
+    "device": "auto",
+    "dtype": "torch.bfloat16",
+    "temperature": 0.7,
+    "max_tokens": 700,
+    "enable_thinking": false,
+    "top_p": 0.8,
+    "top_k": 20,
+    "transformers_version": "4.57.6"
+  },
+  "cache": "dataset/processed/verifier_cache.sqlite",
+  "batch_size": 16,
+  "annotation_column": "semantic_verifier",
+  "alignment": "same order and length as candidates; invalid candidates have status=invalid",
+  "n_questions": 1534,
+  "n_clusters": 2821,
+  "n_unverified_clusters": 0,
+  "n_all_invalid_or_no_valid_cluster": 11,
+  "n_failed_verifications": 8,
+  "label_counts": {
+    "output_semantics": {
+      "S": 2456,
+      "U": 3,
+      "C": 354,
+      "NA": 8
+    },
+    "constraint_semantics": {
+      "S": 2604,
+      "U": 187,
+      "C": 21,
+      "NA": 9
+    },
+    "ranking_semantics": {
+      "S": 397,
+      "U": 321,
+      "C": 6,
+      "NA": 2097
+    },
+    "relation_semantics": {
+      "S": 2608,
+      "U": 154,
+      "C": 4,
+      "NA": 55
+    },
+    "overall": {
+      "S": 2440,
+      "U": 5,
+      "C": 368,
+      "NA": 8
+    }
+  },
+  "errors": []
+}

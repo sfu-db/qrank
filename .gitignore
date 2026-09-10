@@ -7,3 +7,11 @@ build/
 .pytest_cache/
 .ruff_cache/
 dataset/**
+!dataset/
+!dataset/processed/
+
+# 3. Whitelist the two specific folders and all their contents
+!dataset/processed/bird_dev_agr_q_sql_af_AQXRO_ss_m5/
+!dataset/processed/bird_dev_agr_q_sql_af_AQXRO_ss_m5/**
+!dataset/processed/prepbench_agr_q_m5/
+!dataset/processed/prepbench_agr_q_m5/**

@@ -1,0 +1,100 @@
+{
+  "citation": "",
+  "description": "",
+  "features": {
+    "question_id": {
+      "dtype": "string",
+      "_type": "Value"
+    },
+    "question": {
+      "dtype": "string",
+      "_type": "Value"
+    },
+    "candidates": {
+      "feature": {
+        "source": {
+          "dtype": "string",
+          "_type": "Value"
+        },
+        "text": {
+          "dtype": "string",
+          "_type": "Value"
+        },
+        "cluster_id": {
+          "dtype": "string",
+          "_type": "Value"
+        },
+        "metadata": {
+          "source_path": {
+            "dtype": "string",
+            "_type": "Value"
+          }
+        }
+      },
+      "_type": "List"
+    },
+    "semantic_verifier": {
+      "feature": {
+        "cluster_id": {
+          "dtype": "string",
+          "_type": "Value"
+        },
+        "status": {
+          "dtype": "string",
+          "_type": "Value"
+        },
+        "cache_key": {
+          "dtype": "string",
+          "_type": "Value"
+        },
+        "labels": {
+          "output_semantics": {
+            "dtype": "string",
+            "_type": "Value"
+          },
+          "constraint_semantics": {
+            "dtype": "string",
+            "_type": "Value"
+          },
+          "ranking_semantics": {
+            "dtype": "string",
+            "_type": "Value"
+          },
+          "relation_semantics": {
+            "dtype": "string",
+            "_type": "Value"
+          },
+          "overall": {
+            "dtype": "string",
+            "_type": "Value"
+          }
+        },
+        "reasons": {
+          "output_semantics": {
+            "dtype": "string",
+            "_type": "Value"
+          },
+          "constraint_semantics": {
+            "dtype": "string",
+            "_type": "Value"
+          },
+          "ranking_semantics": {
+            "dtype": "string",
+            "_type": "Value"
+          },
+          "relation_semantics": {
+            "dtype": "string",
+            "_type": "Value"
+          },
+          "overall": {
+            "dtype": "string",
+            "_type": "Value"
+          }
+        }
+      },
+      "_type": "List"
+    }
+  },
+  "homepage": "",
+  "license": ""
+}

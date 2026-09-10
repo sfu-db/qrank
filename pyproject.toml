@@ -13,7 +13,7 @@ dependencies = [
 ]
 
 [project.scripts]
-qrank-verifier = "qrank.semantic_verifier:main"
+qrank-verifier = "qrank.verifier.cli:main"
 
 [build-system]
 requires = ["uv_build>=0.9.0,<0.10.0"]

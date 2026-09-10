@@ -7,11 +7,13 @@ import tempfile
 import unittest
 from unittest.mock import patch
 
-from qrank import semantic_verifier as sv
+from qrank.llms import LLMBackend
+from qrank.verifier import pipeline as sv
+from qrank.verifier import cli, context
 from datasets import Dataset, DatasetDict, load_from_disk
 
 
-class FakeBackend(sv.VerifierBackend):
+class FakeBackend(LLMBackend):
     backend_name = 'test'
 
     def __init__(self):
@@ -115,8 +117,8 @@ class DatasetTransformTests(unittest.TestCase):
                    'CREATE TABLE related (item_id INTEGER REFERENCES items(id))']
             (base / 'schema.json').write_text(json.dumps({'example': ddl}))
             (base / 'dev_tables.json').write_text(json.dumps([{'db_id': 'example'}]))
-            args = sv.build_parser().parse_args(['transform-dataset'])
-            with patch.object(sv, '__file__', str(root / 'src/qrank/semantic_verifier.py')), chdir(base):
+            args = cli.build_parser().parse_args(['transform-dataset'])
+            with patch.object(context, '__file__', str(root / 'src/qrank/verifier/context.py')), chdir(base):
                 self.assertEqual(sv.load_database_schemas(args), {'example': '\n\n'.join(ddl)})
                 (base / 'schema.json').unlink()
                 self.assertEqual(sv.load_database_schemas(args),
@@ -125,7 +127,7 @@ class DatasetTransformTests(unittest.TestCase):
     def test_explicit_schema_mapping_validation(self):
         with tempfile.TemporaryDirectory() as tmp:
             schema = Path(tmp) / 'schema.json'
-            args = sv.build_parser().parse_args(['transform-dataset', '--schemas', str(schema)])
+            args = cli.build_parser().parse_args(['transform-dataset', '--schemas', str(schema)])
             schema.write_text(json.dumps({'example': 'CREATE TABLE items (id INTEGER)'}))
             self.assertEqual(sv.load_database_schemas(args),
                              {'example': 'CREATE TABLE items (id INTEGER)'})
@@ -137,8 +139,8 @@ class DatasetTransformTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             missing = str(Path(tmp) / 'missing')
             stderr = io.StringIO()
-            with patch('sys.stderr', stderr), patch.object(sv, 'make_backend') as backend:
-                status = sv.main([
+            with patch('sys.stderr', stderr), patch.object(cli, 'make_backend') as backend:
+                status = cli.main([
                     'transform-dataset', '--input', missing,
                     '--output', str(Path(tmp) / 'output'),
                 ])
@@ -172,12 +174,12 @@ class DatasetTransformTests(unittest.TestCase):
             DatasetDict(test=Dataset.from_list([row, invalid])).save_to_disk(root / 'input')
             backend = FakeBackend()
             for run in range(2):
-                args = sv.build_parser().parse_args([
+                args = cli.build_parser().parse_args([
                     'transform-dataset', '--input', str(root / 'input'),
                     '--output', str(root / f'output{run}'), '--db-root', str(dbs),
                     '--cache', str(root / 'cache.sqlite'),
                 ])
-                with patch.object(sv, 'make_backend', return_value=backend):
+                with patch.object(cli, 'make_backend', return_value=backend):
                     self.assertEqual(args.func(args), 0)
                 output = load_from_disk(args.output)['test']
                 for key, value in row.items():

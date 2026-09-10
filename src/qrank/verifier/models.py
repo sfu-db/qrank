@@ -1,0 +1,67 @@
+"""Shared verification inputs, results, errors, and serialization helpers."""
+from __future__ import annotations
+
+import dataclasses
+import hashlib
+import json
+import os
+from pathlib import Path
+from typing import Any
+
+class VerificationError(RuntimeError):
+    pass
+
+
+
+@dataclasses.dataclass(frozen=True)
+class ClusterInput:
+    cluster_id: str
+    representative_sql: str
+    vote_count: int
+    # Kept for output/audit only; NEVER passed to the verifier prompt.
+    metadata: dict[str, Any]
+
+
+
+@dataclasses.dataclass(frozen=True)
+class QuestionInput:
+    question_id: str
+    question: str
+    evidence: str
+    schema: str
+    db_id: str
+    difficulty: str
+    clusters: tuple[ClusterInput, ...]
+    metadata: dict[str, Any]
+    task_type: str = "text-to-sql"
+
+
+
+@dataclasses.dataclass(frozen=True)
+class VerificationResult:
+    labels: dict[str, str]
+    reasons: dict[str, str]
+    raw_text: str
+    status: str
+    cache_key: str
+    attempts: int
+
+
+
+def stable_json(obj: Any) -> str:
+    return json.dumps(obj, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
+
+
+
+def sha256_text(text: str) -> str:
+    return hashlib.sha256(text.encode("utf-8")).hexdigest()
+
+
+
+def atomic_write_text(path: str | Path, text: str) -> None:
+    path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    tmp = path.with_suffix(path.suffix + ".tmp")
+    tmp.write_text(text, encoding="utf-8")
+    os.replace(tmp, path)
+

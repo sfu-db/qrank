@@ -3,6 +3,7 @@ import sys
 import unittest
 from unittest.mock import patch
 
+from qrank.config import VerifierConfig
 from qrank.llms import LLMBackend, load_backend, register_backend
 from qrank.llms import registry
 from qrank.verifier import cli
@@ -47,9 +48,8 @@ assert registry._BACKENDS['transformers'].__module__ == 'qrank.llms.transformers
                 load_backend('missing', model='example')
 
     def test_cli_uses_registry(self):
-        args = cli.build_parser().parse_args(['transform-dataset', '--backend', 'transformers'])
+        args = cli.build_parser().parse_args(['transform-dataset', '--config', 'training_configs/verifier_qwen3_1p7b.json', '--backend', 'transformers'])
         with patch.object(cli, 'load_backend') as loader:
             self.assertIs(cli.make_backend(args), loader.return_value)
-        loader.assert_called_once_with('transformers', model=args.model, device=args.device,
-                                       dtype=args.dtype, temperature=args.temperature,
-                                       max_tokens=args.max_tokens, revision=args.revision)
+        config = VerifierConfig.from_file(args.config)
+        loader.assert_called_once_with('transformers', **config.backend_options())

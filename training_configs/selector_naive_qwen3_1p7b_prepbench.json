@@ -8,11 +8,10 @@
   "max_tokens": 128,
   "revision": "main",
   "batch_size": 4,
-  "oracle_confidence_threshold": 0.6,
   "oracle_budget_ratio": 0.2,
   "oracle_budget_count": null,
   "show_progress": true,
-  "progress_every": 1,
+  "progress_every": 20,
   "overwrite": false,
   "dataset": {
     "name": "prepbench_agr_q_m5",

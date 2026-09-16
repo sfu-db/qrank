@@ -8,7 +8,10 @@ from .base import LLMBackend
 
 BackendType = TypeVar("BackendType", bound=type[LLMBackend])
 _BACKENDS: dict[str, type[LLMBackend]] = {}
-_BACKEND_MODULES = {"transformers": "qrank.llms.transformers"}
+_BACKEND_MODULES = {
+    "transformers": "qrank.llms.transformers",
+    "vllm": "qrank.llms.vllm",
+}
 
 
 def register_backend(name: str) -> Callable[[BackendType], BackendType]:

@@ -1,0 +1,251 @@
+{
+  "questions": 10,
+  "candidate_slots": 50,
+  "valid_candidate_slots": 41,
+  "invalid_candidate_slots": 9,
+  "distinct_valid_candidates": 39,
+  "model_requests_completed": 184,
+  "unique_query_scopes": 46,
+  "candidates_with_nested_scopes": 6,
+  "inference_seconds_excluding_model_startup": 52.299209,
+  "distinct_candidate_benchmark_counts": {
+    "True": 17,
+    "False": 22
+  },
+  "block_counts": {
+    "output_semantics": {
+      "S": 43,
+      "U": 2,
+      "C": 1
+    },
+    "constraint_semantics": {
+      "S": 46
+    },
+    "ranking_semantics": {
+      "S": 25,
+      "NA": 21
+    },
+    "relation_semantics": {
+      "S": 43,
+      "U": 2,
+      "NA": 1
+    }
+  },
+  "root_counts": {
+    "output_semantics": {
+      "S": 36,
+      "U": 2,
+      "C": 1
+    },
+    "constraint_semantics": {
+      "S": 39
+    },
+    "ranking_semantics": {
+      "S": 18,
+      "NA": 21
+    },
+    "relation_semantics": {
+      "S": 36,
+      "U": 2,
+      "NA": 1
+    }
+  },
+  "root_labels_vs_candidate_benchmark": {
+    "output_semantics": {
+      "S": {
+        "True": 15,
+        "False": 21
+      },
+      "U": {
+        "True": 1,
+        "False": 1
+      },
+      "C": {
+        "True": 1
+      }
+    },
+    "constraint_semantics": {
+      "S": {
+        "True": 17,
+        "False": 22
+      }
+    },
+    "ranking_semantics": {
+      "S": {
+        "True": 11,
+        "False": 7
+      },
+      "NA": {
+        "False": 15,
+        "True": 6
+      }
+    },
+    "relation_semantics": {
+      "S": {
+        "True": 15,
+        "False": 21
+      },
+      "U": {
+        "True": 2
+      },
+      "NA": {
+        "False": 1
+      }
+    }
+  },
+  "block_patterns_vs_candidate_benchmark": {
+    "S_or_NA_only": {
+      "True": 13,
+      "False": 21
+    },
+    "U_without_C": {
+      "True": 3,
+      "False": 1
+    },
+    "any_C": {
+      "True": 1
+    }
+  },
+  "limitations": [
+    "First ten questions, all California schools; not a representative BIRD sample.",
+    "Benchmark execution labels are not block-level semantic ground truth.",
+    "Any-C is a diagnostic grouping, not an implemented candidate verdict."
+  ],
+  "targeted_spot_checks": {
+    "method": "Assistant-authored diagnostic expectations recorded before viewing model results; not independent human annotations or a representative accuracy benchmark.",
+    "count": 13,
+    "matched": 6,
+    "results": [
+      {
+        "question_id": 0,
+        "candidate_index": 4,
+        "block_id": "q0:output_semantics",
+        "expected_label": "C",
+        "rationale": "The evidence defines count/enrollment; the candidate multiplies it by 100.",
+        "observed_label": "S",
+        "observed_reason": "The SQL computes the maximum of the eligible free rate (as a percentage) for schools in Alameda County, which matches the question's request. The formula used is correct as per the provided evidence, and the output structure aligns with the required semantics.",
+        "matches_expectation": false
+      },
+      {
+        "question_id": 4,
+        "candidate_index": 0,
+        "block_id": "q0:constraint_semantics",
+        "expected_label": "C",
+        "rationale": "The candidate omits the direct-funding restriction; charter status and opening date alone do not express it.",
+        "observed_label": "S",
+        "observed_reason": "The SQL correctly filters for direct charter-funded schools (Charter School (Y/N) = 1) and ensures they were opened after 2000/1/1 by checking s.OpenDate > '2000-01-01'.",
+        "matches_expectation": false
+      },
+      {
+        "question_id": 4,
+        "candidate_index": 1,
+        "block_id": "q0:constraint_semantics",
+        "expected_label": "C",
+        "rationale": "The candidate omits the direct-funding restriction; charter status and opening date alone do not express it.",
+        "observed_label": "S",
+        "observed_reason": "The SQL correctly filters for direct charter-funded schools (Charter School (Y/N) = 1) and ensures they were opened after 2000/1/1 (OpenDate > '2000-01-01'). The Boolean logic and WHERE clause scope are preserved as required.",
+        "matches_expectation": false
+      },
+      {
+        "question_id": 4,
+        "candidate_index": 2,
+        "block_id": "q0:constraint_semantics",
+        "expected_label": "C",
+        "rationale": "The candidate omits the direct-funding restriction; charter status and opening date alone do not express it.",
+        "observed_label": "S",
+        "observed_reason": "The SQL correctly filters for direct charter-funded schools (Charter = 1) and ensures they were opened after 2000/1/1 (OpenDate > '2000-01-01'), which matches the question's requirements.",
+        "matches_expectation": false
+      },
+      {
+        "question_id": 4,
+        "candidate_index": 3,
+        "block_id": "q0:constraint_semantics",
+        "expected_label": "C",
+        "rationale": "The candidate omits the direct-funding restriction; charter status and opening date alone do not express it.",
+        "observed_label": "S",
+        "observed_reason": "The SQL query correctly filters for direct charter-funded schools (Charter = 1) and opens after 2000/1/1 (OpenDate > '2000-01-01'), which aligns with the question's requirements.",
+        "matches_expectation": false
+      },
+      {
+        "question_id": 4,
+        "candidate_index": 4,
+        "block_id": "q0:constraint_semantics",
+        "expected_label": "C",
+        "rationale": "The candidate omits the direct-funding restriction; charter status and opening date alone do not express it.",
+        "observed_label": "S",
+        "observed_reason": "The SQL correctly filters for schools opened after 2000/1/1 and charter schools (Charter School (Y/N) = 1). The constraints are properly applied in the WHERE clause and align with the question's requirements.",
+        "matches_expectation": false
+      },
+      {
+        "question_id": 5,
+        "candidate_index": 0,
+        "block_id": "q0:constraint_semantics",
+        "expected_label": "S",
+        "rationale": "The predicate matches both AvgScrMath < 400 and the explicit evidence Virtual = 'F'.",
+        "observed_label": "S",
+        "observed_reason": "The SQL query correctly applies the required filters: T2.AvgScrMath < 400 (average Math score under 400) and T1.Virtual = 'F' (exclusively virtual schools). These conditions align with the question's requirements.",
+        "matches_expectation": true
+      },
+      {
+        "question_id": 5,
+        "candidate_index": 1,
+        "block_id": "q0:constraint_semantics",
+        "expected_label": "S",
+        "rationale": "The predicate matches both AvgScrMath < 400 and the explicit evidence Virtual = 'F'.",
+        "observed_label": "S",
+        "observed_reason": "The SQL query correctly applies the required filters: it checks for schools with an average Math score under 400 (T2.AvgScrMath < 400) and exclusively virtual schools (T1.Virtual = 'F'). These conditions align with the question's requirements.",
+        "matches_expectation": true
+      },
+      {
+        "question_id": 5,
+        "candidate_index": 2,
+        "block_id": "q0:constraint_semantics",
+        "expected_label": "S",
+        "rationale": "The predicate matches both AvgScrMath < 400 and the explicit evidence Virtual = 'F'.",
+        "observed_label": "S",
+        "observed_reason": "The SQL query correctly applies the required filters: T2.AvgScrMath < 400 (average Math score under 400) and T1.Virtual = 'F' (exclusively virtual schools). These conditions align with the question's requirements.",
+        "matches_expectation": true
+      },
+      {
+        "question_id": 5,
+        "candidate_index": 3,
+        "block_id": "q0:constraint_semantics",
+        "expected_label": "S",
+        "rationale": "The predicate matches both AvgScrMath < 400 and the explicit evidence Virtual = 'F'.",
+        "observed_label": "S",
+        "observed_reason": "The SQL query correctly applies the required filters: T2.AvgScrMath < 400 (average Math score under 400) and T1.Virtual = 'F' (exclusively virtual schools). These conditions align with the question's requirements.",
+        "matches_expectation": true
+      },
+      {
+        "question_id": 6,
+        "candidate_index": 0,
+        "block_id": "q0:output_semantics",
+        "expected_label": "S",
+        "rationale": "Selecting the school name fulfills the requested output; no additional attributes were requested.",
+        "observed_label": "S",
+        "observed_reason": "The SQL query selects schools with SAT test takers over 500 and Magnet = 1, which matches the question's requirement. The projection is correct as it lists the schools, and the filter on Magnet = 1 correctly identifies magnet schools.",
+        "matches_expectation": true
+      },
+      {
+        "question_id": 6,
+        "candidate_index": 2,
+        "block_id": "q0:output_semantics",
+        "expected_label": "S",
+        "rationale": "Selecting the school name fulfills the requested output; no additional attributes were requested.",
+        "observed_label": "S",
+        "observed_reason": "The SQL query selects the 'School' column from the 'schools' table where the number of SAT test takers is over 500 and the school is a magnet school (Magnet = 1). This matches the question's requirement to list schools with over 500 SAT test takers that are magnet schools or offer a magnet program. The projection and filtering are correct under the given schema.",
+        "matches_expectation": true
+      },
+      {
+        "question_id": 7,
+        "candidate_index": 0,
+        "block_id": "q0:ranking_semantics",
+        "expected_label": "C",
+        "rationale": "Ranking by total NumTstTakr does not rank by the number of test takers scoring over 1500.",
+        "observed_label": "S",
+        "observed_reason": "The question asks for the school with the highest number of test takers with an SAT score of over 1500, which requires finding the maximum value (extreme) and ordering by that value. The SQL uses ORDER BY ss.NumTstTakr DESC NULLS FIRST and LIMIT 1 to achieve this, satisfying the ranking semantics requirement.",
+        "matches_expectation": false
+      }
+    ]
+  }
+}

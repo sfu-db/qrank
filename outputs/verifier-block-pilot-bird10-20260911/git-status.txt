@@ -1,0 +1,59 @@
+ M README.md
+ D dataset/processed/prepbench_agr_q_m5/dataset_dict.json
+ D dataset/processed/prepbench_agr_q_m5/semantic_verifier.manifest.json
+ D dataset/processed/prepbench_agr_q_m5/test/data-00000-of-00001.arrow
+ D dataset/processed/prepbench_agr_q_m5/test/dataset_info.json
+ D dataset/processed/prepbench_agr_q_m5/test/state.json
+ D dataset/processed/prepbench_agr_q_m5/verifier_cache.sqlite
+ M docs/README.md
+ M docs/verifier-dataset.md
+ M docs/verifier-deployment.md
+ M pyproject.toml
+ M scripts/prepbench/README.md
+ M scripts/prepbench/transform.py
+ M src/qrank/baselines/selector/README.md
+ M src/qrank/baselines/selector/cli.py
+ M src/qrank/baselines/selector/config.py
+ M src/qrank/baselines/selector/pipeline.py
+ M src/qrank/baselines/selector/prompts.py
+ M src/qrank/config.py
+ M src/qrank/llms/base.py
+ M src/qrank/llms/registry.py
+ M src/qrank/verifier/api.py
+ M src/qrank/verifier/cli.py
+ M src/qrank/verifier/context.py
+ M src/qrank/verifier/models.py
+ M src/qrank/verifier/pipeline.py
+ M src/qrank/verifier/prompts.py
+ M tests/test_llms.py
+ M tests/test_selector_baseline.py
+ M tests/test_verifier_api.py
+ M tests/test_verifier_context.py
+ M tests/test_verifier_pipeline.py
+ M training_configs/selector_naive_qwen3_1p7b.json
+ M training_configs/selector_naive_qwen3_1p7b_prepbench.json
+ M uv.lock
+?? docs/local-inference.md
+?? docs/verifier-block-signals.md
+?? docs/verifier-reliability-review.md
+?? outputs/bird-dev/
+?? outputs/prepbench/selector_naive_qwen3_8b_vllm/
+?? outputs/verifier-audit/
+?? outputs/verifier-block-pilot-bird10-20260911/
+?? outputs/verifier-perspective-pilot/
+?? outputs/verifier-pilot-v9/
+?? src/qrank/llms/vllm.py
+?? src/qrank/svem/
+?? src/qrank/verifier/responses.py
+?? src/qrank/verifier/sql.py
+?? src/qrank/verifier/workflow.py
+?? tests/test_config.py
+?? tests/test_verifier_blocks.py
+?? tests/test_verifier_sql.py
+?? tests/test_vllm_backend.py
+?? tests/verifier_fixtures.py
+?? training_configs/selector_naive_qwen3_8b.json
+?? training_configs/selector_naive_qwen3_8b_prepbench.json
+?? training_configs/selector_naive_qwen3_8b_prepbench_vllm.json
+?? training_configs/verifier_qwen3_1p7b.json
+?? training_configs/verifier_qwen3_8b.json

@@ -5,9 +5,9 @@ from typing import Mapping, Sequence
 
 
 SYSTEM_PROMPT = """You are a careful evaluator that selects the best candidate answer.
-Choose exactly one candidate index from the provided list, or return null when none is reliable.
+Choose exactly one displayed candidate index, or return null when none is reliable.
 Return JSON only with keys: selected_index, confidence, reason.
-- selected_index: integer index into the provided candidate list (0-based), or null to defer to oracle
+- selected_index: original integer index shown in brackets (indices may have gaps), or null to defer to oracle
 - confidence: number in [0, 1]
 - reason: short explanation
 Do not include markdown or extra keys."""
@@ -16,10 +16,10 @@ Do not include markdown or extra keys."""
 def _candidate_lines(candidates: Sequence[Mapping[str, object]]) -> list[str]:
     lines = []
     for i, candidate in enumerate(candidates):
-        text = str(candidate.get("text", "")).strip()
-        invalid = bool(candidate.get("invalid_mask", False))
-        marker = "invalid=true" if invalid else "invalid=false"
-        lines.append(f"[{i}] ({marker})\n{text}")
+        text = candidate.get("text")
+        if candidate.get("invalid_mask", False) or not isinstance(text, str) or not text.strip():
+            continue
+        lines.append(f"[{i}] (invalid=false)\n{text.strip()}")
     return lines
 
 

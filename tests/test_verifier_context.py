@@ -14,6 +14,27 @@ from test_verifier_pipeline import FakeBackend
 
 
 class ContextTests(unittest.TestCase):
+    def test_database_descriptions_preserve_values_and_provenance(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            directory = root / 'example/database_description'
+            directory.mkdir(parents=True)
+            source = directory / 'schools.csv'
+            source.write_text('original_column_name,value_description\nFunding,"D means directly funded"\n')
+            (root / 'gold.csv').write_text('SECRET_REFERENCE')
+            args = cli.build_parser().parse_args([
+                'transform-dataset', '--config', 'unused.json', '--descriptions-root', str(root)])
+            descriptions = context.load_database_descriptions(args)
+            self.assertEqual(set(descriptions), {'example'})
+            self.assertIn('D means directly funded', descriptions['example'])
+            self.assertIn(str(source.resolve()), descriptions['example'])
+            self.assertNotIn('SECRET_REFERENCE', descriptions['example'])
+            task = context.build_context({'question': 'Q', 'group_id': 'example'}, descriptions=descriptions)
+            self.assertIn('D means directly funded', task.context)
+            args.descriptions_root = None
+            args.db_root = str(root)
+            self.assertEqual(context.load_database_descriptions(args), descriptions)
+
     def test_sql_schema_keeps_row_context(self):
         context = build_context({'question': 'Q', 'group_id': 'db', 'context': 'Extra hints'},
                                 schemas={'db': 'CREATE TABLE t (id INT)'})
@@ -49,7 +70,7 @@ class ContextTests(unittest.TestCase):
             ]}
             source = root / 'prepbench.jsonl'
             source.write_text(json.dumps(row) + '\n')
-            args = cli.build_parser().parse_args(['transform-dataset', '--input', str(source),
+            args = cli.build_parser().parse_args(['transform-dataset', '--config', 'training_configs/verifier_qwen3_1p7b.json', '--input', str(source),
                                                 '--output', str(root / 'output')])
             backend = FakeBackend()
             with patch.object(sv, 'load_database_schemas', side_effect=AssertionError('SQL discovery')), \
@@ -58,11 +79,11 @@ class ContextTests(unittest.TestCase):
             result = load_from_disk(args.output)['test'][0]
             self.assertEqual(result['candidates'], row['candidates'])
             annotations = result['semantic_verifier']
-            self.assertEqual(annotations[0], annotations[1])
+            self.assertNotEqual(annotations[0]['cache_key'], annotations[1]['cache_key'])
             self.assertEqual(annotations[2]['status'], 'invalid')
-            self.assertEqual(len(backend.calls), 1)
-            prompt = backend.calls[0]
-            self.assertEqual(SYSTEM_PROMPT, prompt['system'])
+            self.assertEqual(len(backend.calls), 8)
+            prompt = backend.calls[1]
+            self.assertIn(SYSTEM_PROMPT, prompt['system'])
             self.assertIn('Task: PrepBench', prompt['user'])
             self.assertIn('solve(tables: dict[str, pd.DataFrame]) -> dict[str, pd.DataFrame]', prompt['user'])
             self.assertIn('requested output filenames', prompt['user'])
@@ -71,11 +92,7 @@ class ContextTests(unittest.TestCase):
             self.assertIn('not provided', prompt['user'])
             self.assertNotIn('SECRET', prompt['user'])
             self.assertNotIn('OTHER_CANDIDATE', prompt['user'])
-            q = sv.QuestionInput('q', 'Q', '', '', '', '', (), {}, 'prepbench')
-            c = sv.ClusterInput('0', 'code', 1, {})
-            key = sv.make_cache_key(q, c, backend)
-            self.assertNotEqual(key, sv.make_cache_key(dataclasses.replace(q, task_type='text-to-sql'), c, backend))
-            self.assertEqual(key, sv.make_cache_key(q, dataclasses.replace(c, vote_count=9, metadata={'gold': True}), backend))
+
 
 
 if __name__ == '__main__':

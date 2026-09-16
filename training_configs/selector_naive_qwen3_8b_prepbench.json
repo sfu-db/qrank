@@ -1,0 +1,21 @@
+{
+  "output_dir": "outputs/prepbench/selector_naive_qwen3_8b_0910_11-30-00",
+  "backend": "transformers",
+  "model": "Qwen/Qwen3-8B",
+  "device": "cuda",
+  "dtype": "auto",
+  "temperature": 0.0,
+  "max_tokens": 2048,
+  "revision": "main",
+  "batch_size": 1,
+  "oracle_budget_ratio": 0.2,
+  "oracle_budget_count": null,
+  "show_progress": true,
+  "progress_every": 20,
+  "overwrite": false,
+  "dataset": {
+    "name": "prepbench_agr_q_m5",
+    "path": "dataset/raw/matrix_k2_g4.7_q3-235b_ds_dev_prepbench_m5",
+    "split": "test"
+  }
+}

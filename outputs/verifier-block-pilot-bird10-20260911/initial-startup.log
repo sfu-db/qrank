@@ -1,0 +1,2 @@
+INFO 09-11 02:35:17 [__init__.py:216] Automatically detected platform cuda.
+INFO 09-11 02:35:57 [utils.py:233] non-default args: {'seed': 0, 'max_model_len': 32768, 'enable_prefix_caching': True, 'gpu_memory_utilization': 0.95, 'disable_log_stats': True, 'revision': 'main', 'tokenizer_revision': 'main', 'structured_outputs_config': StructuredOutputsConfig(backend='xgrammar', disable_fallback=False, disable_any_whitespace=False, disable_additional_properties=False, reasoning_parser=''), 'generation_config': 'vllm', 'model': 'Qwen/Qwen3-8B'}

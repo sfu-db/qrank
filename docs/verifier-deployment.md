@@ -1,160 +1,80 @@
-# Deployment in an application
+# Application usage
 
-Use the `Verifier` Python API to judge candidates at request time, without
-creating a dataset. The module provides synchronous inference; it does not
-include an HTTP server or a deployment CLI subcommand. See
-[setup and label meanings](README.md) for installation and the result contract.
-
-## Load once and verify requests
-
-Create one verifier during application/worker startup and reuse it:
+The verifier judges each semantic perspective independently. It does not estimate
+whole-candidate correctness or aggregate the perspectives into an overall label.
 
 ```python
-from dataclasses import asdict
-from qrank.verifier import Verifier
+from qrank.verifier import Verifier, SQLiteCache
 
-verifier = Verifier()
-
-def verify_request(question: str, candidate: str, context: str,
-                   evidence: str = "") -> dict:
-    result = verifier.verify(
-        question=question,
-        candidate=candidate,
-        context=context,
-        evidence=evidence,
-        task_type="text-to-sql",
-    )
-    return asdict(result)
-
-response = verify_request(
-    question="List all item IDs",
-    candidate="SELECT id FROM items",
-    context="SQLite. CREATE TABLE items (id INTEGER PRIMARY KEY);",
-)
-if response["status"] in {"ok", "cached"}:
-    print(response["labels"]["overall"], response["reasons"]["overall"])
-else:
-    print("Verification unavailable:", response["reasons"]["overall"])
-```
-
-Run application scripts with `uv run python path/to/app.py` in the configured
-environment. Importing `qrank.verifier` does not load model weights; constructing
-`Verifier()` loads the configured backend. Initial construction may download
-model/tokenizer files if they are not already available locally.
-
-The API does not discover schema files or databases. Supply SQL DDL, dialect,
-and relevant task details through `context`, and hints or definitions through
-`evidence`. It judges the candidate as written without execution or repair.
-
-## Verify several candidates
-
-```python
-candidates = ["SELECT id FROM items", "SELECT COUNT(*) FROM items"]
-results = verifier.verify_candidates(
-    question="List all item IDs",
-    candidates=candidates,
-    context="SQLite. CREATE TABLE items (id INTEGER PRIMARY KEY);",
-    task_type="text-to-sql",
-)
-for candidate, result in zip(candidates, results, strict=True):
-    print(candidate, result.status, result.labels["overall"])
-```
-
-Results preserve input order, and an empty sequence returns `[]`. Each candidate
-is judged independently in its own prompt. Unlike dataset processing, this API
-does not cluster candidates or filter invalid/empty candidates. Your application
-supplies the candidates it wants judged; the verifier does not select a winner.
-
-For Python/pandas tasks, use `task_type="prepbench"` and provide input/runtime
-details explicitly:
-
-```python
-result = verifier.verify(
-    question="Return items.csv with only its id column, preserving all rows.",
-    candidate='''def solve(tables):
-    return {"items.csv": tables["items.csv"][["id"]].copy()}
-''',
-    context=(
-        'tables["items.csv"] is a pandas DataFrame with columns '
-        'id (int64) and name (string). pandas is available as pd. '
-        'The returned dictionary must contain the key "items.csv".'
-    ),
-    task_type="prepbench",
-)
-```
-
-The interface is `solve(tables: dict[str, pd.DataFrame]) -> dict[str,
-pd.DataFrame]`. Include output requirements, table schemas, representative
-samples, actual runtime dtypes, and imports/globals as relevant. The API does
-not read PrepBench CSV files. `task_type="auto"` detects a `def solve(tables...)`
-signature among candidates and otherwise assumes SQL; an explicit type is useful
-for requests with incomplete code.
-
-## Configure the backend and cache
-
-`Verifier()` reads `LLM_BACKEND` and `LLM_OPTIONS` from
-[config.py](../src/qrank/config.py). Defaults are Transformers with
-`Qwen/Qwen3-1.7B`, automatic device/dtype, temperature `0.7`, a `700`-token
-response budget, and revision `main`. To configure an instance explicitly:
-
-```python
-from qrank.llms import load_backend
-from qrank.verifier import SQLiteCache, Verifier
-
-backend = load_backend(
-    "transformers",
-    model="Qwen/Qwen3-1.7B",
-    device="auto",       # Or "cpu" / "cuda:0".
-    dtype="auto",
-    temperature=0,       # Greedy decoding.
-    max_tokens=700,
-    revision="main",    # Use a commit ID to pin the model version.
-)
 verifier = Verifier(
-    backend=backend,
-    cache=SQLiteCache("var/verifier_cache.sqlite"),
-    retries=2,
-    retry_delay=1.0,
-    batch_size=8,
+    config_path="training_configs/verifier_qwen3_8b.json",
+    cache=SQLiteCache("verifier.sqlite"),  # Optional.
 )
+result = verifier.verify(
+    question="Return the sum of salaries for employees in department Sales.",
+    candidate="SELECT SUM(salary) FROM employees WHERE department = 'HR'",
+    context="CREATE TABLE employees (salary REAL, department TEXT);",
+    sql_dialect="sqlite",
+    perspective="constraint_semantics",
+)
+print(result.labels["constraint_semantics"])
+print(result.reasons["constraint_semantics"])
 ```
 
-Passing a backend bypasses default backend construction. Caching is disabled
-unless you pass a `SQLiteCache`; its path should be writable and persistent if
-judgments should survive restarts. Successful responses are cached, failures are
-not. Cache keys include question, evidence, built context, candidate, task type,
-prompt version/system prompt, and backend identity. A matching cached response
-returns `status="cached"` with zero attempts. Changing these inputs produces a
-different key. Cached sampled judgments are reused rather than sampled again.
+Omit `perspective` to request all four. SQL emits a local check per reachable
+scope/perspective plus a coverage check for each requirement in those perspectives.
+`verify_candidates(question, candidates, ...)` accepts the same options and
+returns results in candidate order. Identical candidates share judgments.
+Empty candidate lists return `[]`; an empty candidate string raises.
 
-## Handle results and service execution
+Supported perspectives are `output_semantics`, `constraint_semantics`,
+`ranking_semantics`, and `relation_semantics`. A correct sum with an incorrect
+population filter can be output S and constraint C. A projection error should
+not automatically change the relationship judgment. NA means that a local check
+does not apply; U identifies a material missing fact. Root output and assigned
+requirement coverage checks always apply.
 
-`VerificationResult` is a dataclass:
+SQL inputs include raw SQL and a deterministic AST summary with separate blocks
+for nested queries/CTEs. Supply the actual SQL dialect explicitly. PrepBench
+inputs use raw Python/pandas with schemas, samples and runtime details in
+`context`; they do not use SQL parsing. `task_type` supports `auto`, `text-to-sql`,
+and `prepbench`. The application API does not discover files or execute code.
 
-| Field | Meaning |
-| --- | --- |
-| `status` | `ok`, `cached`, or `failed` |
-| `labels` | Perspective names mapped to `S`, `U`, `C`, or `NA` |
-| `reasons` | Explanation for each perspective |
-| `raw_text` | Model response for successful/cached results; empty on failure |
-| `cache_key` | Identity of the judgment inputs and backend |
-| `attempts` | Generation attempts for this call; zero for cache hits |
+## Configuration and results
 
-Always check `status` first. `failed` means verification was unavailable, with
-`NA` in every label and failure details in the reasons. It is distinct from a
-successful judgment of `C` or `U`. Expected generation/response-format failures
-are retried up to `retries` additional times, with exponential delay. Runtime,
-programming, and cache errors propagate to the application; handle them through
-your service's normal error handling.
+Construct the verifier once to reuse the loaded backend. Supply either
+`config_path` or an already-loaded `LLMBackend`. Imports do not load model weights.
+`batch_size` in config defaults to 8; `Verifier(..., batch_size=16)` overrides it.
+The size is the number of requests per inference batch. SQL extraction runs once
+per question/context before the local and coverage requests. The supplied cache
+also reuses contracts across calls. PrepBench retains four code-level requests.
 
-Calls block until inference and any retries finish. In an asynchronous server,
-run them through the application's worker/executor mechanism. The built-in
-Transformers backend serializes generation on each backend instance with a lock;
-parallel requests sharing that instance do not run model generation concurrently.
-`batch_size` batches candidates within a call, not requests across API calls.
-Each process constructing its own backend loads its own model, so account for
-model memory when choosing worker count.
+`VerificationResult` exposes `labels`, `reasons`, `raw_text`, `status`,
+`cache_key`, `attempts`, `requirements`, `block_results`, and `requirement_results`.
+Labels/reasons expose only the root block's requested perspectives; they are
+not coverage summaries. `raw_text` maps block/coverage IDs to raw completions.
+The requirements record preserves the source-grounded contract, original inputs,
+extractor identity, and extraction cache key. Status is `ok` or `cached`; attempts
+is one when any fresh extraction or check was needed, zero when all were cached.
+The result cache key identifies the bundle; each request is cached separately.
+A later all-perspective call reuses an earlier single-perspective judgment.
 
-Reduce `batch_size` if GPU memory is exhausted, and keep supplied context plus
-`max_tokens` within the model context window. JSON responses are parsed and
-validated after generation; generation is not constrained to a JSON grammar.
+See [grounded block signals](verifier-block-signals.md) for structured evidence,
+omission records, and metadata for downstream EM. Mixed S/C observations are
+retained without reconciliation or an overall correctness judgment.
+
+There are no retries, automatic response repairs, fallback labels, or overall
+verdicts. SQL parsing, JSON, inference and cache errors propagate to the caller.
+The vLLM backend uses xgrammar to constrain structured responses. Transformers
+and custom text backends receive the same schema in the prompt without decoding
+constraints. Parsing failures remain errors for those backends as well.
+
+Pass `audit_path="var/verifier_trace.jsonl"` to retain prompts and completions;
+create the parent directory first. The trace is written before response parsing,
+so invalid JSON is available for debugging. Cache is opt-in; keys include the
+perspective prompt, SQL/AST, context, response schema and backend identity.
+
+Calls are synchronous. Applications manage workers/concurrency; each built-in
+backend serializes generation on its instance. Separate processes load separate
+model copies. Keep prompt plus response within model context limits and reduce
+batch size if GPU memory is exhausted.

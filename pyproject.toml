@@ -8,6 +8,7 @@ dependencies = [
     "accelerate==1.15.0",
     "datasets==4.8.5",
     "hf-transfer==0.1.9",
+    "sqlglot>=30.18.0",
     "torch==2.8.0",
     "transformers==4.57.6",
 ]
@@ -15,6 +16,11 @@ dependencies = [
 [project.scripts]
 qrank-verifier = "qrank.verifier.cli:main"
 qrank-selector = "qrank.baselines.selector.cli:main"
+qrank-judge = "qrank.judge.cli:main"
+
+[project.optional-dependencies]
+# This release matches the project's PyTorch 2.8 / CUDA 12.8 stack.
+vllm = ["vllm==0.11.0; sys_platform == 'linux' and python_version < '3.14'"]
 
 [build-system]
 requires = ["uv_build>=0.9.0,<0.10.0"]
@@ -33,4 +39,3 @@ explicit = true
 dev = [
     "huggingface-hub[cli]>=0.36.2",
 ]
-

@@ -23,6 +23,7 @@ class VerificationContext:
     context: str = ""
     db_id: str = ""
     difficulty: str = ""
+    sql_dialect: str | None = None
 
 
 def detect_task_type(row: Mapping[str, Any], task_type: str = "auto") -> str:
@@ -43,7 +44,9 @@ def detect_task_type(row: Mapping[str, Any], task_type: str = "auto") -> str:
 def build_context(
     row: Mapping[str, Any], *, task_type: str = "auto",
     schemas: Mapping[str, str] | None = None,
+    descriptions: Mapping[str, str] | None = None,
     prepbench_root: str | Path | None = None,
+    sql_dialect: str | None = None,
 ) -> VerificationContext:
     """Only task fields and optional input CSVs are exposed; never gold outputs.
 
@@ -52,21 +55,26 @@ def build_context(
     or candidate execution is performed.
     """
     kind = detect_task_type(row, task_type)
+    if not isinstance(row.get("question"), str) or not row["question"].strip():
+        raise ValueError("question must be a nonempty string")
     metadata = row.get("metadata") or {}
     context = row.get("context") or ""
     if not isinstance(context, str):
         context = json.dumps(context, ensure_ascii=False, sort_keys=True)
     db_id = ""
+    dialect = None
     if kind == "text-to-sql":
         db_id = str(metadata.get("db_id") or row.get("group_id") or "")
         if schemas and db_id not in schemas:
             raise ValueError(f"No schema found for database {db_id!r}")
         schema = (schemas or {}).get(db_id, "")
+        dialect = sql_dialect or row.get("sql_dialect") or metadata.get("sql_dialect")
         context = "\n\n".join(part for part in (
             "Task: text-to-SQL. The candidate is a SQL query whose result must "
-            "answer the question against the supplied database schema. "
-            "The SQL dialect is unspecified unless supplied below.",
+            "answer the question against the supplied database schema.",
+            f"SQL dialect: {dialect}." if dialect else "The SQL dialect is unspecified unless supplied below.",
             schema,
+            (descriptions or {}).get(db_id, ""),
             context,
         ) if part)
     else:
@@ -103,7 +111,7 @@ def build_context(
                          "Use U for material questions that depend on missing information.")
         context = "\n\n".join(parts)
     return VerificationContext(kind, str(row["question"]), str(row.get("evidence") or ""),
-                               context, db_id, str(metadata.get("difficulty") or ""))
+                               context, db_id, str(metadata.get("difficulty") or ""), dialect)
 
 
 def load_database_schemas(args: argparse.Namespace) -> dict[str, str]:
@@ -159,3 +167,35 @@ def load_database_schemas(args: argparse.Namespace) -> dict[str, str]:
     if getattr(args, "db_root", None) and not schemas:
         raise VerificationError(f"No .sqlite databases found under {root}")
     return schemas
+
+
+def load_database_descriptions(args: argparse.Namespace) -> dict[str, str]:
+    """Load documented BIRD columns/values, never query results or reference SQL.
+
+    Only <db_id>/database_description/*.csv files are considered. An explicit
+    descriptions root can accompany --schemas; --db-root includes them by default.
+    """
+    directory = getattr(args, "descriptions_root", None) or getattr(args, "db_root", None)
+    if not directory:
+        return {}
+    root = Path(directory)
+    if not root.is_dir():
+        raise VerificationError(f"Descriptions directory does not exist: {root}")
+    descriptions: dict[str, list[str]] = {}
+    seen = set()
+    for path in sorted(root.rglob("database_description/*.csv")):
+        db_id = path.parent.parent.name
+        identity = (db_id, path.stem)
+        if identity in seen:
+            raise VerificationError(f"Duplicate table description {identity}; narrow the descriptions root")
+        seen.add(identity)
+        with path.open(newline="", encoding="utf-8-sig") as stream:
+            reader = csv.DictReader(stream)
+            if not reader.fieldnames:
+                raise VerificationError(f"Description CSV has no headers: {path}")
+            rows = list(reader)
+        descriptions.setdefault(db_id, []).append(json.dumps({
+            "source": str(path.resolve()), "table": path.stem, "documented_columns_and_values": rows,
+        }, ensure_ascii=False, sort_keys=True))
+    return {db_id: "DOCUMENTED DATABASE DESCRIPTIONS (with provenance):\n" + "\n".join(parts)
+            for db_id, parts in descriptions.items()}

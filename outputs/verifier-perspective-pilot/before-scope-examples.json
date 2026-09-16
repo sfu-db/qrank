@@ -1,0 +1,86 @@
+[
+  {
+    "case": "correct",
+    "sql": "SELECT SUM(salary) FROM employees WHERE department = 'Sales'",
+    "expected": [
+      "S",
+      "S",
+      "NA",
+      "NA"
+    ],
+    "result": {
+      "labels": {
+        "output_semantics": "S",
+        "constraint_semantics": "S",
+        "ranking_semantics": "NA",
+        "relation_semantics": "NA"
+      },
+      "reasons": {
+        "output_semantics": "The query correctly computes the sum of salaries for employees in the Sales department as required by the question.",
+        "constraint_semantics": "The query correctly sums the salaries of employees in the Sales department using the WHERE clause to filter the department, which aligns with the requirement.",
+        "ranking_semantics": "The question does not request an extreme, top/bottom k, ordering, or rank. It simply asks for the sum of salaries for employees in the Sales department.",
+        "relation_semantics": "The task does not require combining entities, grouping by an entity, or reshaping. The query simply aggregates a single-table column with a filter, which does not involve relationships between entities."
+      },
+      "raw_text": "{\"constraint_semantics\":\"{\\\"label\\\":\\\"S\\\",\\\"reason\\\":\\\"The query correctly sums the salaries of employees in the Sales department using the WHERE clause to filter the department, which aligns with the requirement.\\\"}\",\"output_semantics\":\"{\\\"label\\\":\\\"S\\\",\\\"reason\\\":\\\"The query correctly computes the sum of salaries for employees in the Sales department as required by the question.\\\"}\",\"ranking_semantics\":\"{\\\"label\\\":\\\"NA\\\",\\\"reason\\\":\\\"The question does not request an extreme, top/bottom k, ordering, or rank. It simply asks for the sum of salaries for employees in the Sales department.\\\"}\",\"relation_semantics\":\"{\\\"label\\\":\\\"NA\\\",\\\"reason\\\":\\\"The task does not require combining entities, grouping by an entity, or reshaping. The query simply aggregates a single-table column with a filter, which does not involve relationships between entities.\\\"}\"}",
+      "status": "ok",
+      "cache_key": "bf67bd1093de5e0b8d77214375304d67f8adba6b365367af03ddb0874a96dafd",
+      "attempts": 1
+    }
+  },
+  {
+    "case": "wrong_filter",
+    "sql": "SELECT SUM(salary) FROM employees WHERE department = 'HR'",
+    "expected": [
+      "S",
+      "C",
+      "NA",
+      "NA"
+    ],
+    "result": {
+      "labels": {
+        "output_semantics": "C",
+        "constraint_semantics": "C",
+        "ranking_semantics": "NA",
+        "relation_semantics": "C"
+      },
+      "reasons": {
+        "output_semantics": "The query calculates the sum of salaries for employees in the HR department, but the question requests the sum for employees in the Sales department.",
+        "constraint_semantics": "The query filters for department 'HR' instead of 'Sales', which violates the requirement to sum salaries for employees in the Sales department.",
+        "ranking_semantics": "The question does not request an extreme, top/bottom k, ordering, or rank. It simply asks for the sum of salaries for employees in a specific department.",
+        "relation_semantics": "The query filters for 'HR' department but the question asks for 'Sales' department, resulting in a mismatch in the required grouping or filtering."
+      },
+      "raw_text": "{\"constraint_semantics\":\"{\\\"label\\\":\\\"C\\\",\\\"reason\\\":\\\"The query filters for department 'HR' instead of 'Sales', which violates the requirement to sum salaries for employees in the Sales department.\\\"}\",\"output_semantics\":\"{\\\"label\\\":\\\"C\\\",\\\"reason\\\":\\\"The query calculates the sum of salaries for employees in the HR department, but the question requests the sum for employees in the Sales department.\\\"}\",\"ranking_semantics\":\"{\\\"label\\\":\\\"NA\\\",\\\"reason\\\":\\\"The question does not request an extreme, top/bottom k, ordering, or rank. It simply asks for the sum of salaries for employees in a specific department.\\\"}\",\"relation_semantics\":\"{\\\"label\\\":\\\"C\\\",\\\"reason\\\":\\\"The query filters for 'HR' department but the question asks for 'Sales' department, resulting in a mismatch in the required grouping or filtering.\\\"}\"}",
+      "status": "ok",
+      "cache_key": "ec9550deb9e8c674cb48df6ae0bb2142fe9e31c5e1fd5120bf99376e8e14b8f7",
+      "attempts": 1
+    }
+  },
+  {
+    "case": "wrong_output",
+    "sql": "SELECT AVG(salary) FROM employees WHERE department = 'Sales'",
+    "expected": [
+      "C",
+      "S",
+      "NA",
+      "NA"
+    ],
+    "result": {
+      "labels": {
+        "output_semantics": "C",
+        "constraint_semantics": "C",
+        "ranking_semantics": "NA",
+        "relation_semantics": "S"
+      },
+      "reasons": {
+        "output_semantics": "The query calculates the average salary (AVG) instead of the sum (SUM) as requested in the question.",
+        "constraint_semantics": "The query uses AVG(salary) instead of SUM(salary) to compute the required aggregate value.",
+        "ranking_semantics": "The question does not request an extreme, top/bottom k, ordering, or rank. It simply asks for the sum of salaries for employees in the Sales department.",
+        "relation_semantics": "The query correctly calculates the average salary for employees in the Sales department without requiring complex relationships or joins, as it filters the single table 'employees' based on the department field."
+      },
+      "raw_text": "{\"constraint_semantics\":\"{\\\"label\\\":\\\"C\\\",\\\"reason\\\":\\\"The query uses AVG(salary) instead of SUM(salary) to compute the required aggregate value.\\\"}\",\"output_semantics\":\"{\\\"label\\\":\\\"C\\\",\\\"reason\\\":\\\"The query calculates the average salary (AVG) instead of the sum (SUM) as requested in the question.\\\"}\",\"ranking_semantics\":\"{\\\"label\\\":\\\"NA\\\",\\\"reason\\\":\\\"The question does not request an extreme, top/bottom k, ordering, or rank. It simply asks for the sum of salaries for employees in the Sales department.\\\"}\",\"relation_semantics\":\"{\\\"label\\\":\\\"S\\\",\\\"reason\\\":\\\"The query correctly calculates the average salary for employees in the Sales department without requiring complex relationships or joins, as it filters the single table 'employees' based on the department field.\\\"}\"}",
+      "status": "ok",
+      "cache_key": "735f524a4c25a861a2e289c766c010ef06ad079d6c43dd1c1a17fa8c1bbdeb38",
+      "attempts": 1
+    }
+  }
+]

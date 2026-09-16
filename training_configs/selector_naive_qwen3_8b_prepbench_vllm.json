@@ -1,0 +1,28 @@
+{
+  "output_dir": "outputs/prepbench/selector_naive_qwen3_8b_vllm",
+  "backend": "vllm",
+  "model": "Qwen/Qwen3-8B",
+  "device": "cuda",
+  "dtype": "auto",
+  "temperature": 0.0,
+  "max_tokens": 2048,
+  "revision": "main",
+  "backend_kwargs": {
+    "tensor_parallel_size": 1,
+    "gpu_memory_utilization": 0.85,
+    "max_model_len": 32768,
+    "enable_prefix_caching": true,
+    "seed": 0
+  },
+  "batch_size": 16,
+  "oracle_budget_ratio": 0.2,
+  "oracle_budget_ratios": [0.0, 0.05, 0.1, 0.2, 0.3, 0.5, 1.0],
+  "show_progress": true,
+  "progress_every": 1,
+  "overwrite": false,
+  "dataset": {
+    "name": "prepbench_agr_q_m5",
+    "path": "dataset/raw/matrix_k2_g4.7_q3-235b_ds_dev_prepbench_m5",
+    "split": "test"
+  }
+}

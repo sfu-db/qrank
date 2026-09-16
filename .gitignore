@@ -15,3 +15,5 @@ dataset/**
 !dataset/processed/bird_dev_agr_q_sql_af_AQXRO_ss_m5/**
 !dataset/processed/prepbench_agr_q_m5/
 !dataset/processed/prepbench_agr_q_m5/**
+
+!dataset/processed/dataset/processed/bird_dev_qwen2p5_coder_judged_cluster/**

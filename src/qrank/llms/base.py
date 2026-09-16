@@ -17,8 +17,12 @@ class LLMBackend:
     def generate(self, *, question_id: str, cluster_id: str, system: str, user: str) -> str:
         raise NotImplementedError
 
-    def generate_batch(self, requests: Sequence[dict[str, str]]) -> list[str]:
-        return [self.generate(**request) for request in requests]
+    def generate_batch(self, requests: Sequence[dict[str, Any]]) -> list[str]:
+        # Response constraints are decoding metadata. Backends with constrained
+        # decoding consume them; other backends rely on the supplied prompt.
+        metadata = {"response_schema", "response_choices"}
+        return [self.generate(**{k: v for k, v in request.items() if k not in metadata})
+                for request in requests]
 
     def identity(self) -> dict[str, Any]:
         return {"backend": self.backend_name, "model": self.model}

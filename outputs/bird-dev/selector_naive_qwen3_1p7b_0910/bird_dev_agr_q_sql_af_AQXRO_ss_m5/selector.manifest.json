@@ -1,0 +1,195 @@
+{
+  "created_utc": "2026-09-10T17:24:34.157366+00:00",
+  "dataset": {
+    "name": "bird_dev_agr_q_sql_af_AQXRO_ss_m5",
+    "path": "dataset/processed/bird_dev_agr_q_sql_af_AQXRO_ss_m5",
+    "split": "test",
+    "limit": null
+  },
+  "backend": {
+    "backend": "transformers",
+    "model": "Qwen/Qwen3-1.7B",
+    "revision": "main",
+    "resolved_revision": "70d244cc86ccca08cf5af4e1e306ecf908b1ad5e",
+    "device": "auto",
+    "dtype": "torch.bfloat16",
+    "temperature": 0.0,
+    "max_tokens": 2048,
+    "enable_thinking": false,
+    "top_p": 0.8,
+    "top_k": 20,
+    "transformers_version": "4.57.6"
+  },
+  "batch_size": 2,
+  "oracle_policy": {
+    "allocation": "deferrals_first_then_lowest_confidence",
+    "tie_breaker": "dataset_order",
+    "budget_ratio": 0.2,
+    "budget_count": null
+  },
+  "n_rows": 1534,
+  "status_counts": {
+    "ok": 1228,
+    "oracle": 306,
+    "fallback": 0,
+    "no_valid_candidates": 0
+  },
+  "metrics": {
+    "n_rows_with_labels": 1534,
+    "n_rows_evaluated": 1534,
+    "n_rows_missing_correctness": 0,
+    "evaluation_status": "complete",
+    "llm_only_accuracy": 0.5863192182410424,
+    "llm_only_denominator": 1228,
+    "end_to_end_accuracy": 0.6688396349413298,
+    "end_to_end_denominator": 1534,
+    "evaluated_accuracy": 0.6688396349413298,
+    "evaluation_coverage": 1.0,
+    "oracle_usage_rate": 0.19947848761408082,
+    "oracle_calls": 306,
+    "oracle_requested": 30
+  },
+  "budget_sweep": [
+    {
+      "budget_ratio": 0.0,
+      "effective_budget": 0,
+      "metrics": {
+        "n_rows_with_labels": 1534,
+        "n_rows_evaluated": 1534,
+        "n_rows_missing_correctness": 0,
+        "evaluation_status": "complete",
+        "llm_only_accuracy": 0.525935653315824,
+        "llm_only_denominator": 1523,
+        "end_to_end_accuracy": 0.5221642764015645,
+        "end_to_end_denominator": 1534,
+        "evaluated_accuracy": 0.5221642764015645,
+        "evaluation_coverage": 1.0,
+        "oracle_usage_rate": 0.0,
+        "oracle_calls": 0,
+        "oracle_requested": 30
+      },
+      "selection_file": "selections.budget_0.jsonl"
+    },
+    {
+      "budget_ratio": 0.05,
+      "effective_budget": 76,
+      "metrics": {
+        "n_rows_with_labels": 1534,
+        "n_rows_evaluated": 1534,
+        "n_rows_missing_correctness": 0,
+        "evaluation_status": "complete",
+        "llm_only_accuracy": 0.5384087791495199,
+        "llm_only_denominator": 1458,
+        "end_to_end_accuracy": 0.5612777053455019,
+        "end_to_end_denominator": 1534,
+        "evaluated_accuracy": 0.5612777053455019,
+        "evaluation_coverage": 1.0,
+        "oracle_usage_rate": 0.04954367666232073,
+        "oracle_calls": 76,
+        "oracle_requested": 30
+      },
+      "selection_file": "selections.budget_1.jsonl"
+    },
+    {
+      "budget_ratio": 0.1,
+      "effective_budget": 153,
+      "metrics": {
+        "n_rows_with_labels": 1534,
+        "n_rows_evaluated": 1534,
+        "n_rows_missing_correctness": 0,
+        "evaluation_status": "complete",
+        "llm_only_accuracy": 0.555394641564084,
+        "llm_only_denominator": 1381,
+        "end_to_end_accuracy": 0.5997392438070405,
+        "end_to_end_denominator": 1534,
+        "evaluated_accuracy": 0.5997392438070405,
+        "evaluation_coverage": 1.0,
+        "oracle_usage_rate": 0.09973924380704041,
+        "oracle_calls": 153,
+        "oracle_requested": 30
+      },
+      "selection_file": "selections.budget_2.jsonl"
+    },
+    {
+      "budget_ratio": 0.2,
+      "effective_budget": 306,
+      "metrics": {
+        "n_rows_with_labels": 1534,
+        "n_rows_evaluated": 1534,
+        "n_rows_missing_correctness": 0,
+        "evaluation_status": "complete",
+        "llm_only_accuracy": 0.5863192182410424,
+        "llm_only_denominator": 1228,
+        "end_to_end_accuracy": 0.6688396349413298,
+        "end_to_end_denominator": 1534,
+        "evaluated_accuracy": 0.6688396349413298,
+        "evaluation_coverage": 1.0,
+        "oracle_usage_rate": 0.19947848761408082,
+        "oracle_calls": 306,
+        "oracle_requested": 30
+      },
+      "selection_file": "selections.budget_3.jsonl"
+    },
+    {
+      "budget_ratio": 0.3,
+      "effective_budget": 460,
+      "metrics": {
+        "n_rows_with_labels": 1534,
+        "n_rows_evaluated": 1534,
+        "n_rows_missing_correctness": 0,
+        "evaluation_status": "complete",
+        "llm_only_accuracy": 0.6042830540037244,
+        "llm_only_denominator": 1074,
+        "end_to_end_accuracy": 0.7229465449804433,
+        "end_to_end_denominator": 1534,
+        "evaluated_accuracy": 0.7229465449804433,
+        "evaluation_coverage": 1.0,
+        "oracle_usage_rate": 0.29986962190352023,
+        "oracle_calls": 460,
+        "oracle_requested": 30
+      },
+      "selection_file": "selections.budget_4.jsonl"
+    },
+    {
+      "budget_ratio": 0.5,
+      "effective_budget": 767,
+      "metrics": {
+        "n_rows_with_labels": 1534,
+        "n_rows_evaluated": 1534,
+        "n_rows_missing_correctness": 0,
+        "evaluation_status": "complete",
+        "llm_only_accuracy": 0.651890482398957,
+        "llm_only_denominator": 767,
+        "end_to_end_accuracy": 0.8259452411994785,
+        "end_to_end_denominator": 1534,
+        "evaluated_accuracy": 0.8259452411994785,
+        "evaluation_coverage": 1.0,
+        "oracle_usage_rate": 0.5,
+        "oracle_calls": 767,
+        "oracle_requested": 30
+      },
+      "selection_file": "selections.budget_5.jsonl"
+    },
+    {
+      "budget_ratio": 1.0,
+      "effective_budget": 1534,
+      "metrics": {
+        "n_rows_with_labels": 1534,
+        "n_rows_evaluated": 1534,
+        "n_rows_missing_correctness": 0,
+        "evaluation_status": "complete",
+        "llm_only_accuracy": null,
+        "llm_only_denominator": 0,
+        "end_to_end_accuracy": 1.0,
+        "end_to_end_denominator": 1534,
+        "evaluated_accuracy": 1.0,
+        "evaluation_coverage": 1.0,
+        "oracle_usage_rate": 1.0,
+        "oracle_calls": 1534,
+        "oracle_requested": 30
+      },
+      "selection_file": "selections.budget_6.jsonl"
+    }
+  ],
+  "selection_file": "selections.jsonl"
+}

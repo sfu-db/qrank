@@ -1,36 +1,54 @@
 # Transform PrepBench
 
-From the project root, annotate the local export with the configured verifier:
+Merge the saved matrix dataset with the question/code JSONL export and save a
+Hugging Face `DatasetDict`:
 
 ```bash
 uv run --no-sync python scripts/prepbench/transform.py
 ```
 
-Defaults: input `dataset/raw/prepbench.jsonl`, output
-`dataset/processed-prepbench`, split `test`, task type `prepbench`.
-The model and generation defaults come from `src/qrank/config.py`.
+Defaults:
 
-For a small pilot:
+- `--input`: `dataset/raw/matrix_kimi-k2_glm-4.7_qwen3-235b-a22b_deepseek-v3.2_devstral-2512_prepbench_m5`
+- `--prepbench-jsonl`: `dataset/raw/prepbench.jsonl`
+- `--output`: `dataset/processed-prepbench`
+- All input splits and rows are converted.
+
+For a small subset:
 
 ```bash
 uv run --no-sync python scripts/prepbench/transform.py \
-  --limit 5 --output dataset/processed-prepbench-pilot
+  --split test --limit 5 --output dataset/processed-prepbench-pilot
 ```
 
-All shared `transform-dataset` flags are available (`--help`), including
-`--input`, `--output`, `--batch-size`, `--model`, and `--cache`.
-Default paths work from any working directory; explicitly supplied relative
-paths resolve from your working directory.
+Default paths are relative to the repository. Explicit relative paths resolve
+from your working directory. The output directory must not already exist or
+be inside the source dataset.
 
-If input CSVs are available, pass `--prepbench-root PATH` with the layout
-`PATH/<question_id>/inputs/*.csv` to include headers and five sample rows.
-The bundled JSONL provides questions and candidates, without table context;
-judgments may be unresolved when they depend on missing schemas or data.
+The conversion joins matrix `case_id` to JSONL `question_id`, then matches
+candidates by `source` in the matrix's `models` order. It preserves matrix
+columns, including agreement, features, IDs, and validity information, and
+adds or replaces:
 
-The shared pipeline preserves source fields and candidate ordering, verifies
-one representative per supplied equivalence cluster, and adds aligned
-`semantic_verifier` annotations. It does not execute candidate code.
-Output is a Hugging Face DatasetDict, with a verifier manifest and SQLite cache.
-Interrupted inference can reuse the same output directory and cache. Completed
-datasets cannot be overwritten; choose a new output and optionally reuse the
-old cache with `--cache`.
+- `question`: task text from JSONL.
+- `task_type`: `prepbench`.
+- `candidates`: a list of records containing `source`, `text`, `invalid_mask`,
+  and float `features` from the aligned matrix `answer_features`.
+- `labels`: the matrix labels converted to booleans, preserving nulls.
+
+Missing candidates are allowed only for models marked invalid in the matrix.
+Empty code and JSONL invalid flags also mark a candidate invalid. Duplicate
+case IDs in JSONL, duplicate model names, missing tasks, and misaligned matrix
+fields are rejected.
+
+This script only transforms data. It requires no model configuration and does
+not run inference or candidate code, read input CSVs, or create verifier
+annotations, manifests, or caches.
+
+Load the result with:
+
+```python
+from datasets import load_from_disk
+
+dataset = load_from_disk("dataset/processed-prepbench")
+```

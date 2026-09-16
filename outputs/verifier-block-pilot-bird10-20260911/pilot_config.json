@@ -1,0 +1,17 @@
+{
+  "backend": "vllm",
+  "model": "Qwen/Qwen3-8B",
+  "device": "cuda",
+  "dtype": "auto",
+  "temperature": 0,
+  "max_tokens": 8192,
+  "revision": "main",
+  "batch_size": 16,
+  "backend_kwargs": {
+    "tensor_parallel_size": 1,
+    "gpu_memory_utilization": 0.91,
+    "max_model_len": 32768,
+    "enable_prefix_caching": true,
+    "seed": 0
+  }
+}

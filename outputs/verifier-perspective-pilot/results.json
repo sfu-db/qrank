@@ -1,0 +1,86 @@
+[
+  {
+    "case": "correct",
+    "sql": "SELECT SUM(salary) FROM employees WHERE department = 'Sales'",
+    "expected": [
+      "S",
+      "S",
+      "NA",
+      "NA"
+    ],
+    "result": {
+      "labels": {
+        "output_semantics": "S",
+        "constraint_semantics": "S",
+        "ranking_semantics": "NA",
+        "relation_semantics": "S"
+      },
+      "reasons": {
+        "output_semantics": "The SQL query correctly computes the sum of salaries for employees in the Sales department as requested. The aggregate function SUM(salary) matches the requirement for the sum, and the WHERE clause filters for the correct department.",
+        "constraint_semantics": "The SQL query correctly applies the required population restriction (department = 'Sales') and computes the sum of salaries as required by the question.",
+        "ranking_semantics": "The question does not request an extreme, top/bottom k, ordering, or rank. The SQL query correctly calculates the sum of salaries for employees in the Sales department without any ranking or ordering requirements.",
+        "relation_semantics": "The task requires aggregating salaries for employees in the Sales department, which involves filtering by the 'department' entity and summing the 'salary' attribute. The SQL query correctly applies a WHERE clause to filter by 'Sales' and uses SUM on the 'salary' column, satisfying the relationship requirement."
+      },
+      "raw_text": "{\"constraint_semantics\":\"{\\\"reason\\\":\\\"The SQL query correctly applies the required population restriction (department = 'Sales') and computes the sum of salaries as required by the question.\\\",\\\"label\\\":\\\"S\\\"}\",\"output_semantics\":\"{\\\"reason\\\":\\\"The SQL query correctly computes the sum of salaries for employees in the Sales department as requested. The aggregate function SUM(salary) matches the requirement for the sum, and the WHERE clause filters for the correct department.\\\",\\\"label\\\":\\\"S\\\"}\",\"ranking_semantics\":\"{\\\"reason\\\":\\\"The question does not request an extreme, top/bottom k, ordering, or rank. The SQL query correctly calculates the sum of salaries for employees in the Sales department without any ranking or ordering requirements.\\\",\\\"label\\\":\\\"NA\\\"}\",\"relation_semantics\":\"{\\\"reason\\\":\\\"The task requires aggregating salaries for employees in the Sales department, which involves filtering by the 'department' entity and summing the 'salary' attribute. The SQL query correctly applies a WHERE clause to filter by 'Sales' and uses SUM on the 'salary' column, satisfying the relationship requirement.\\\",\\\"label\\\":\\\"S\\\"}\"}",
+      "status": "ok",
+      "cache_key": "8cec7c22393f8c5dd9316d18715761e64eca01a14f4b32e7e754ba57b6463f62",
+      "attempts": 1
+    }
+  },
+  {
+    "case": "wrong_filter",
+    "sql": "SELECT SUM(salary) FROM employees WHERE department = 'HR'",
+    "expected": [
+      "S",
+      "C",
+      "NA",
+      "NA"
+    ],
+    "result": {
+      "labels": {
+        "output_semantics": "C",
+        "constraint_semantics": "C",
+        "ranking_semantics": "NA",
+        "relation_semantics": "C"
+      },
+      "reasons": {
+        "output_semantics": "The question asks for the sum of salaries for employees in the Sales department, but the SQL query filters for the HR department. The aggregate function SUM(salary) is correct, but the filter condition is wrong.",
+        "constraint_semantics": "The question requires summing salaries for employees in the Sales department, but the SQL filters for HR instead.",
+        "ranking_semantics": "The question does not request an extreme, top/bottom k, ordering, or rank. The SQL query correctly calculates the sum of salaries for employees in the HR department without any ranking or ordering requirements.",
+        "relation_semantics": "The task requires summing salaries for employees in the Sales department, but the query filters for HR instead, violating the grouping and relationship requirement to target the correct department."
+      },
+      "raw_text": "{\"constraint_semantics\":\"{\\\"reason\\\":\\\"The question requires summing salaries for employees in the Sales department, but the SQL filters for HR instead.\\\",\\\"label\\\":\\\"C\\\"}\",\"output_semantics\":\"{\\\"reason\\\":\\\"The question asks for the sum of salaries for employees in the Sales department, but the SQL query filters for the HR department. The aggregate function SUM(salary) is correct, but the filter condition is wrong.\\\",\\\"label\\\":\\\"C\\\"}\",\"ranking_semantics\":\"{\\\"reason\\\":\\\"The question does not request an extreme, top/bottom k, ordering, or rank. The SQL query correctly calculates the sum of salaries for employees in the HR department without any ranking or ordering requirements.\\\",\\\"label\\\":\\\"NA\\\"}\",\"relation_semantics\":\"{\\\"reason\\\":\\\"The task requires summing salaries for employees in the Sales department, but the query filters for HR instead, violating the grouping and relationship requirement to target the correct department.\\\",\\\"label\\\":\\\"C\\\"}\"}",
+      "status": "ok",
+      "cache_key": "e4a04b09420a65c75e013691dcf4abbfeb60eda17f640eeeb7c3621a1aa40119",
+      "attempts": 1
+    }
+  },
+  {
+    "case": "wrong_output",
+    "sql": "SELECT AVG(salary) FROM employees WHERE department = 'Sales'",
+    "expected": [
+      "C",
+      "S",
+      "NA",
+      "NA"
+    ],
+    "result": {
+      "labels": {
+        "output_semantics": "C",
+        "constraint_semantics": "C",
+        "ranking_semantics": "NA",
+        "relation_semantics": "C"
+      },
+      "reasons": {
+        "output_semantics": "The question asks for the sum of salaries, but the SQL query computes the average (AVG) instead of the sum (SUM). The aggregate function is incorrect for the requested output.",
+        "constraint_semantics": "The question requires the sum of salaries, but the candidate uses AVG(salary) instead of SUM(salary) in the SELECT clause. This is a mismatch in the aggregation function used.",
+        "ranking_semantics": "The question does not request an extreme, top/bottom k, ordering, or rank. The SQL query calculates an average salary, which is not a ranking or ordering operation.",
+        "relation_semantics": "The task requires summing salaries for employees in the Sales department, which involves grouping by department. The candidate uses AVG(salary) without grouping, which does not meet the relationship requirement of aggregating salaries for a specific department."
+      },
+      "raw_text": "{\"constraint_semantics\":\"{\\\"reason\\\":\\\"The question requires the sum of salaries, but the candidate uses AVG(salary) instead of SUM(salary) in the SELECT clause. This is a mismatch in the aggregation function used.\\\",\\\"label\\\":\\\"C\\\"}\",\"output_semantics\":\"{\\\"reason\\\":\\\"The question asks for the sum of salaries, but the SQL query computes the average (AVG) instead of the sum (SUM). The aggregate function is incorrect for the requested output.\\\",\\\"label\\\":\\\"C\\\"}\",\"ranking_semantics\":\"{\\\"reason\\\":\\\"The question does not request an extreme, top/bottom k, ordering, or rank. The SQL query calculates an average salary, which is not a ranking or ordering operation.\\\",\\\"label\\\":\\\"NA\\\"}\",\"relation_semantics\":\"{\\\"reason\\\":\\\"The task requires summing salaries for employees in the Sales department, which involves grouping by department. The candidate uses AVG(salary) without grouping, which does not meet the relationship requirement of aggregating salaries for a specific department.\\\",\\\"label\\\":\\\"C\\\"}\"}",
+      "status": "ok",
+      "cache_key": "c49e112995091dbe036bc5c79e43a4aed45df2d741fc83767da56f15cd92ff84",
+      "attempts": 1
+    }
+  }
+]

@@ -9,7 +9,7 @@ from pathlib import Path
 from typing import Any
 
 class VerificationError(RuntimeError):
-    pass
+    """A verifier response or dataset invariant was violated."""
 
 
 
@@ -34,6 +34,18 @@ class QuestionInput:
     clusters: tuple[ClusterInput, ...]
     metadata: dict[str, Any]
     task_type: str = "text-to-sql"
+    sql_dialect: str | None = None
+
+
+@dataclasses.dataclass(frozen=True)
+class RequirementSet:
+    """Candidate-independent obligations, with source quotes and ambiguity."""
+
+    requirements: tuple[dict[str, Any], ...]
+    unresolved: tuple[str, ...] = ()
+
+    def as_dict(self) -> dict[str, Any]:
+        return {"requirements": list(self.requirements), "unresolved": list(self.unresolved)}
 
 
 
@@ -45,6 +57,9 @@ class VerificationResult:
     status: str
     cache_key: str
     attempts: int
+    block_results: list[dict[str, Any]] = dataclasses.field(default_factory=list)
+    requirement_results: list[dict[str, Any]] = dataclasses.field(default_factory=list)
+    requirements: dict[str, Any] = dataclasses.field(default_factory=dict)
 
 
 
@@ -64,4 +79,3 @@ def atomic_write_text(path: str | Path, text: str) -> None:
     tmp = path.with_suffix(path.suffix + ".tmp")
     tmp.write_text(text, encoding="utf-8")
     os.replace(tmp, path)
-

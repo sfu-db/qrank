@@ -1,0 +1,107 @@
+{
+  "source": "/workspace/qrank/qrank/dataset/bird_dev_agr_q_sql_af_AQXRO_ss_m5",
+  "split": "test",
+  "limit": 10,
+  "created_utc": "2026-09-11T02:46:05.568285+00:00",
+  "prompt_version": "qrank-svem-semantic-v12-rubric-only",
+  "perspectives": [
+    "output_semantics",
+    "constraint_semantics",
+    "ranking_semantics",
+    "relation_semantics"
+  ],
+  "workflow": "raw SQL plus deterministic AST summary; independent perspective judgments",
+  "verification_unit": "distinct stripped candidate text within each agreement cluster",
+  "error_policy": "raise immediately; no retries or fallback labels",
+  "trace": "outputs/verifier-block-pilot-bird10-20260911/dataset/verifier_trace.jsonl",
+  "backend": {
+    "backend": "vllm",
+    "model": "Qwen/Qwen3-8B",
+    "revision": "main",
+    "resolved_revision": "b968826d9c46dd6066d109eabc6255188de91218",
+    "device": "cuda",
+    "dtype": "torch.bfloat16",
+    "temperature": 0,
+    "max_tokens": 8192,
+    "enable_thinking": false,
+    "top_p": 1.0,
+    "top_k": 0,
+    "vllm_version": "0.11.0",
+    "generation_config": "vllm",
+    "tensor_parallel_size": 1,
+    "gpu_memory_utilization": 0.91,
+    "enable_prefix_caching": true,
+    "quantization": null,
+    "seed": 0,
+    "structured_outputs_config": {
+      "backend": "xgrammar"
+    },
+    "max_model_len": 32768
+  },
+  "cache": "outputs/verifier-block-pilot-bird10-20260911/dataset/verifier_cache.sqlite",
+  "batch_size": 16,
+  "annotation_column": "semantic_verifier",
+  "task_types": [
+    "text-to-sql"
+  ],
+  "alignment": "same order and length as candidates; invalid candidates have status=invalid",
+  "block_label_counts": {
+    "output_semantics": {
+      "S": 43,
+      "U": 2,
+      "C": 1,
+      "NA": 0
+    },
+    "constraint_semantics": {
+      "S": 46,
+      "U": 0,
+      "C": 0,
+      "NA": 0
+    },
+    "ranking_semantics": {
+      "S": 25,
+      "U": 0,
+      "C": 0,
+      "NA": 21
+    },
+    "relation_semantics": {
+      "S": 43,
+      "U": 2,
+      "C": 0,
+      "NA": 1
+    }
+  },
+  "n_questions": 10,
+  "n_clusters": 39,
+  "n_agreement_clusters": 18,
+  "n_unverified_clusters": 0,
+  "n_failed_verifications": 0,
+  "n_all_invalid_or_no_valid_cluster": 0,
+  "label_counts": {
+    "output_semantics": {
+      "S": 36,
+      "U": 2,
+      "C": 1,
+      "NA": 0
+    },
+    "constraint_semantics": {
+      "S": 39,
+      "U": 0,
+      "C": 0,
+      "NA": 0
+    },
+    "ranking_semantics": {
+      "S": 18,
+      "U": 0,
+      "C": 0,
+      "NA": 21
+    },
+    "relation_semantics": {
+      "S": 36,
+      "U": 2,
+      "C": 0,
+      "NA": 1
+    }
+  },
+  "errors": []
+}

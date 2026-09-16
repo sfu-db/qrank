@@ -2,11 +2,11 @@
 from __future__ import annotations
 
 import json
-from dataclasses import dataclass
+from dataclasses import asdict, dataclass, field, fields
 from pathlib import Path
 from typing import Any
 
-from qrank import config as qrank_config
+from qrank.config import LLMConfig
 
 
 @dataclass(frozen=True)
@@ -25,20 +25,26 @@ class SelectorConfig:
 
     output_dir: str
     dataset: SelectorDatasetTarget
-    backend: str = qrank_config.LLM_BACKEND
-    model: str = qrank_config.LLM_OPTIONS["model"]
-    device: str = qrank_config.LLM_OPTIONS["device"]
-    dtype: str = qrank_config.LLM_OPTIONS["dtype"]
-    temperature: float = 0.0
-    max_tokens: int = 128
-    revision: str = qrank_config.LLM_OPTIONS["revision"]
+    backend: str
+    model: str
+    device: str
+    dtype: str
+    temperature: float
+    max_tokens: int
+    revision: str
     batch_size: int = 4
     overwrite: bool = False
-    oracle_confidence_threshold: float = 0.6
     oracle_budget_ratio: float = 0.2
     oracle_budget_count: int | None = None
+    oracle_budget_ratios: tuple[float, ...] = ()
     show_progress: bool = True
-    progress_every: int = 1
+    progress_every: int = 20
+    backend_kwargs: dict[str, Any] = field(default_factory=dict)
+
+    def backend_options(self) -> dict[str, Any]:
+        return LLMConfig.from_dict({
+            item.name: getattr(self, item.name) for item in fields(LLMConfig)
+        }).backend_options()
 
 
 def _as_int(value: Any, field_name: str) -> int:
@@ -75,6 +81,9 @@ def load_selector_config(path: str | Path) -> SelectorConfig:
     if not isinstance(data, dict):
         raise ValueError("Selector config must be a JSON object")
 
+    llm = LLMConfig.from_dict({field.name: data[field.name] for field in fields(LLMConfig)
+                               if field.name in data})
+
     output_dir = str(data.get("output_dir", "")).strip()
     if not output_dir:
         raise ValueError("output_dir must be non-empty")
@@ -83,20 +92,12 @@ def load_selector_config(path: str | Path) -> SelectorConfig:
     if batch_size <= 0:
         raise ValueError("batch_size must be positive")
 
-    max_tokens = _as_int(data.get("max_tokens", 128), "max_tokens")
-    if max_tokens <= 0:
-        raise ValueError("max_tokens must be positive")
-
-    temperature = float(data.get("temperature", 0.0))
-    if temperature < 0:
-        raise ValueError("temperature must be non-negative")
-
-    oracle_confidence_threshold = float(data.get("oracle_confidence_threshold", 0.6))
-    if oracle_confidence_threshold < 0 or oracle_confidence_threshold > 1:
-        raise ValueError("oracle_confidence_threshold must be in [0, 1]")
+    if "oracle_confidence_threshold" in data:
+        raise ValueError("oracle_confidence_threshold has been removed; remove it from the config. "
+                         "Oracle budgets now prioritize deferrals, then lowest-confidence selections.")
 
     oracle_budget_ratio = float(data.get("oracle_budget_ratio", 0.2))
-    if oracle_budget_ratio < 0 or oracle_budget_ratio > 1:
+    if not 0 <= oracle_budget_ratio <= 1:
         raise ValueError("oracle_budget_ratio must be in [0, 1]")
 
     oracle_budget_count = data.get("oracle_budget_count")
@@ -105,7 +106,17 @@ def load_selector_config(path: str | Path) -> SelectorConfig:
         if oracle_budget_count < 0:
             raise ValueError("oracle_budget_count must be non-negative")
 
-    progress_every = _as_int(data.get("progress_every", 1), "progress_every")
+    sweep = data.get("oracle_budget_ratios", [])
+    if not isinstance(sweep, list) or any(isinstance(value, bool) for value in sweep):
+        raise ValueError("oracle_budget_ratios must be a list of numbers in [0, 1]")
+    try:
+        oracle_budget_ratios = tuple(dict.fromkeys(float(value) for value in sweep))
+    except (TypeError, ValueError) as exc:
+        raise ValueError("oracle_budget_ratios must be a list of numbers in [0, 1]") from exc
+    if any(not 0 <= ratio <= 1 for ratio in oracle_budget_ratios):
+        raise ValueError("oracle_budget_ratios must be in [0, 1]")
+
+    progress_every = _as_int(data.get("progress_every", 20), "progress_every")
     if progress_every <= 0:
         raise ValueError("progress_every must be positive")
 
@@ -116,18 +127,12 @@ def load_selector_config(path: str | Path) -> SelectorConfig:
     return SelectorConfig(
         output_dir=output_dir,
         dataset=_load_target(data.get("dataset")),
-        backend=str(data.get("backend", qrank_config.LLM_BACKEND)),
-        model=str(data.get("model", qrank_config.LLM_OPTIONS["model"])),
-        device=str(data.get("device", qrank_config.LLM_OPTIONS["device"])),
-        dtype=str(data.get("dtype", qrank_config.LLM_OPTIONS["dtype"])),
-        temperature=temperature,
-        max_tokens=max_tokens,
-        revision=str(data.get("revision", qrank_config.LLM_OPTIONS["revision"])),
+        **asdict(llm),
         batch_size=batch_size,
         overwrite=overwrite,
-        oracle_confidence_threshold=oracle_confidence_threshold,
         oracle_budget_ratio=oracle_budget_ratio,
         oracle_budget_count=oracle_budget_count,
+        oracle_budget_ratios=oracle_budget_ratios,
         show_progress=show_progress,
         progress_every=progress_every,
     )

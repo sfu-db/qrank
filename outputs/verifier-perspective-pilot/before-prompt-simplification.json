@@ -1,0 +1,86 @@
+[
+  {
+    "case": "correct",
+    "sql": "SELECT SUM(salary) FROM employees WHERE department = 'Sales'",
+    "expected": [
+      "S",
+      "S",
+      "NA",
+      "NA"
+    ],
+    "result": {
+      "labels": {
+        "output_semantics": "S",
+        "constraint_semantics": "S",
+        "ranking_semantics": "S",
+        "relation_semantics": "S"
+      },
+      "reasons": {
+        "output_semantics": "The candidate SQL correctly computes the sum of salaries for employees in the Sales department by using the SUM aggregate function on the salary column filtered by the department = 'Sales' condition.",
+        "constraint_semantics": "The candidate SQL correctly computes the sum of salaries for employees in the Sales department by filtering the employees table with WHERE department = 'Sales' and applying the SUM aggregation on the salary column.",
+        "ranking_semantics": "The candidate SQL correctly computes the sum of salaries for employees in the Sales department by filtering the employees table with WHERE department = 'Sales' and applying the SUM aggregation.",
+        "relation_semantics": "The candidate SQL correctly computes the sum of salaries for employees in the Sales department by filtering the employees table with the WHERE clause and applying the SUM aggregation function."
+      },
+      "raw_text": "{\"constraint_semantics\":\"{\\\"label\\\": \\\"S\\\", \\\"reason\\\": \\\"The candidate SQL correctly computes the sum of salaries for employees in the Sales department by filtering the employees table with WHERE department = 'Sales' and applying the SUM aggregation on the salary column.\\\"}\",\"output_semantics\":\"{\\\"label\\\": \\\"S\\\", \\\"reason\\\": \\\"The candidate SQL correctly computes the sum of salaries for employees in the Sales department by using the SUM aggregate function on the salary column filtered by the department = 'Sales' condition.\\\"}\",\"ranking_semantics\":\"{\\\"label\\\": \\\"S\\\", \\\"reason\\\": \\\"The candidate SQL correctly computes the sum of salaries for employees in the Sales department by filtering the employees table with WHERE department = 'Sales' and applying the SUM aggregation.\\\"}\",\"relation_semantics\":\"{\\\"label\\\": \\\"S\\\", \\\"reason\\\": \\\"The candidate SQL correctly computes the sum of salaries for employees in the Sales department by filtering the employees table with the WHERE clause and applying the SUM aggregation function.\\\"}\"}",
+      "status": "ok",
+      "cache_key": "421bcc122123914f2eb3b0f8d058a040f5ac43c61b62ff238ac6e55ac4c6dcb7",
+      "attempts": 1
+    }
+  },
+  {
+    "case": "wrong_filter",
+    "sql": "SELECT SUM(salary) FROM employees WHERE department = 'HR'",
+    "expected": [
+      "S",
+      "C",
+      "NA",
+      "NA"
+    ],
+    "result": {
+      "labels": {
+        "output_semantics": "C",
+        "constraint_semantics": "C",
+        "ranking_semantics": "C",
+        "relation_semantics": "C"
+      },
+      "reasons": {
+        "output_semantics": "The candidate query calculates the sum of salaries for employees in the 'HR' department, but the question requires the sum for the 'Sales' department. This contradicts the requirement to return the sum for employees in department Sales.",
+        "constraint_semantics": "The candidate query filters employees where department = 'HR', but the question requires summing salaries for employees in department 'Sales'. This contradicts the population constraint specified in the question.",
+        "ranking_semantics": "The candidate query calculates the sum of salaries for employees in the 'HR' department, but the question requires the sum for the 'Sales' department. This contradicts the requirement to return the sum for employees in department Sales.",
+        "relation_semantics": "The candidate query filters for department 'HR' instead of 'Sales', which contradicts the requirement to sum salaries for employees in the Sales department."
+      },
+      "raw_text": "{\"constraint_semantics\":\"{\\\"label\\\": \\\"C\\\", \\\"reason\\\": \\\"The candidate query filters employees where department = 'HR', but the question requires summing salaries for employees in department 'Sales'. This contradicts the population constraint specified in the question.\\\"}\",\"output_semantics\":\"{\\\"label\\\": \\\"C\\\", \\\"reason\\\": \\\"The candidate query calculates the sum of salaries for employees in the 'HR' department, but the question requires the sum for the 'Sales' department. This contradicts the requirement to return the sum for employees in department Sales.\\\"}\",\"ranking_semantics\":\"{\\\"label\\\": \\\"C\\\", \\\"reason\\\": \\\"The candidate query calculates the sum of salaries for employees in the 'HR' department, but the question requires the sum for the 'Sales' department. This contradicts the requirement to return the sum for employees in department Sales.\\\"}\",\"relation_semantics\":\"{\\\"label\\\": \\\"C\\\", \\\"reason\\\": \\\"The candidate query filters for department 'HR' instead of 'Sales', which contradicts the requirement to sum salaries for employees in the Sales department.\\\"}\"}",
+      "status": "ok",
+      "cache_key": "f54782e14872f6809183a592eef1bba66e750450870bc2502baf77b53b07dd84",
+      "attempts": 1
+    }
+  },
+  {
+    "case": "wrong_output",
+    "sql": "SELECT AVG(salary) FROM employees WHERE department = 'Sales'",
+    "expected": [
+      "C",
+      "S",
+      "NA",
+      "NA"
+    ],
+    "result": {
+      "labels": {
+        "output_semantics": "C",
+        "constraint_semantics": "C",
+        "ranking_semantics": "C",
+        "relation_semantics": "C"
+      },
+      "reasons": {
+        "output_semantics": "The candidate uses AVG(salary) instead of SUM(salary) to compute the sum of salaries, which contradicts the requirement to return the sum.",
+        "constraint_semantics": "The candidate uses AVG(salary) instead of SUM(salary), which contradicts the requirement to return the sum of salaries.",
+        "ranking_semantics": "The candidate uses AVG(salary) instead of SUM(salary), which contradicts the requirement to return the sum of salaries.",
+        "relation_semantics": "The candidate uses AVG(salary) instead of SUM(salary), which contradicts the requirement to return the sum of salaries."
+      },
+      "raw_text": "{\"constraint_semantics\":\"{\\\"label\\\": \\\"C\\\", \\\"reason\\\": \\\"The candidate uses AVG(salary) instead of SUM(salary), which contradicts the requirement to return the sum of salaries.\\\"}\",\"output_semantics\":\"{\\\"label\\\": \\\"C\\\", \\\"reason\\\": \\\"The candidate uses AVG(salary) instead of SUM(salary) to compute the sum of salaries, which contradicts the requirement to return the sum.\\\"}\",\"ranking_semantics\":\"{\\\"label\\\": \\\"C\\\", \\\"reason\\\": \\\"The candidate uses AVG(salary) instead of SUM(salary), which contradicts the requirement to return the sum of salaries.\\\"}\",\"relation_semantics\":\"{\\\"label\\\": \\\"C\\\", \\\"reason\\\": \\\"The candidate uses AVG(salary) instead of SUM(salary), which contradicts the requirement to return the sum of salaries.\\\"}\"}",
+      "status": "ok",
+      "cache_key": "ff355bf8d509dc459f4d2c43c5ca827db04cc63176c578f923e945822a242a0f",
+      "attempts": 1
+    }
+  }
+]

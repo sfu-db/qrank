@@ -1,0 +1,17 @@
+{
+  "backend": "vllm",
+  "model": "Qwen/Qwen2.5-Coder-7B-Instruct",
+  "device": "cuda",
+  "dtype": "auto",
+  "temperature": 0.0,
+  "max_tokens": 8,
+  "revision": "main",
+  "batch_size": 16,
+  "backend_kwargs": {
+    "tensor_parallel_size": 1,
+    "gpu_memory_utilization": 0.9,
+    "max_model_len": 32768,
+    "enable_prefix_caching": true,
+    "seed": 0
+  }
+}

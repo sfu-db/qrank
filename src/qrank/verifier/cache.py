@@ -49,7 +49,8 @@ class SQLiteCache:
             return None
         return str(row[0]), json.loads(row[1])
 
-    def put(self, key: str, raw_text: str, parsed: dict[str, Any], backend: LLMBackend) -> None:
+    def put(self, key: str, raw_text: str, parsed: dict[str, Any], backend: LLMBackend,
+            *, prompt_version: str = PROMPT_VERSION) -> None:
         con = self._con()
         con.execute(
             """INSERT OR REPLACE INTO verifier_cache
@@ -61,9 +62,8 @@ class SQLiteCache:
                 stable_json(parsed),
                 backend.model,
                 backend.backend_name,
-                PROMPT_VERSION,
+                prompt_version,
                 dt.datetime.now(dt.timezone.utc).isoformat(),
             ),
         )
         con.commit()
-

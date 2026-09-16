@@ -1,0 +1,82 @@
+INFO 09-11 03:56:09 [__init__.py:216] Automatically detected platform cuda.
+INFO 09-11 03:56:46 [arg_utils.py:504] HF_HUB_OFFLINE is True, replace model_id [Qwen/Qwen3-8B] to model_path [/workspace/.cache/huggingface/hub/models--Qwen--Qwen3-8B/snapshots/b968826d9c46dd6066d109eabc6255188de91218]
+INFO 09-11 03:56:46 [arg_utils.py:504] HF_HUB_OFFLINE is True, replace model_id [/workspace/.cache/huggingface/hub/models--Qwen--Qwen3-8B/snapshots/b968826d9c46dd6066d109eabc6255188de91218] to model_path [/workspace/.cache/huggingface/hub/models--Qwen--Qwen3-8B/snapshots/b968826d9c46dd6066d109eabc6255188de91218]
+INFO 09-11 03:56:46 [utils.py:233] non-default args: {'seed': 0, 'max_model_len': 32768, 'enable_prefix_caching': True, 'gpu_memory_utilization': 0.91, 'disable_log_stats': True, 'revision': 'main', 'tokenizer_revision': 'main', 'structured_outputs_config': StructuredOutputsConfig(backend='xgrammar', disable_fallback=False, disable_any_whitespace=False, disable_additional_properties=False, reasoning_parser=''), 'generation_config': 'vllm', 'model': '/workspace/.cache/huggingface/hub/models--Qwen--Qwen3-8B/snapshots/b968826d9c46dd6066d109eabc6255188de91218'}
+INFO 09-11 03:56:46 [model.py:547] Resolved architecture: Qwen3ForCausalLM
+`torch_dtype` is deprecated! Use `dtype` instead!
+INFO 09-11 03:56:46 [model.py:1510] Using max model len 32768
+INFO 09-11 03:56:50 [scheduler.py:205] Chunked prefill is enabled with max_num_batched_tokens=8192.
+[1;36m(EngineCore_DP0 pid=25734)[0;0m INFO 09-11 03:56:51 [core.py:644] Waiting for init message from front-end.
+[1;36m(EngineCore_DP0 pid=25734)[0;0m INFO 09-11 03:56:51 [core.py:77] Initializing a V1 LLM engine (v0.11.0) with config: model='/workspace/.cache/huggingface/hub/models--Qwen--Qwen3-8B/snapshots/b968826d9c46dd6066d109eabc6255188de91218', speculative_config=None, tokenizer='/workspace/.cache/huggingface/hub/models--Qwen--Qwen3-8B/snapshots/b968826d9c46dd6066d109eabc6255188de91218', skip_tokenizer_init=False, tokenizer_mode=auto, revision=main, tokenizer_revision=main, trust_remote_code=False, dtype=torch.bfloat16, max_seq_len=32768, download_dir=None, load_format=auto, tensor_parallel_size=1, pipeline_parallel_size=1, data_parallel_size=1, disable_custom_all_reduce=False, quantization=None, enforce_eager=False, kv_cache_dtype=auto, device_config=cuda, structured_outputs_config=StructuredOutputsConfig(backend='xgrammar', disable_fallback=False, disable_any_whitespace=False, disable_additional_properties=False, reasoning_parser=''), observability_config=ObservabilityConfig(show_hidden_metrics_for_version=None, otlp_traces_endpoint=None, collect_detailed_traces=None), seed=0, served_model_name=/workspace/.cache/huggingface/hub/models--Qwen--Qwen3-8B/snapshots/b968826d9c46dd6066d109eabc6255188de91218, enable_prefix_caching=True, chunked_prefill_enabled=True, pooler_config=None, compilation_config={"level":3,"debug_dump_path":"","cache_dir":"","backend":"","custom_ops":[],"splitting_ops":["vllm.unified_attention","vllm.unified_attention_with_output","vllm.mamba_mixer2","vllm.mamba_mixer","vllm.short_conv","vllm.linear_attention","vllm.plamo2_mamba_mixer","vllm.gdn_attention","vllm.sparse_attn_indexer"],"use_inductor":true,"compile_sizes":[],"inductor_compile_config":{"enable_auto_functionalized_v2":false},"inductor_passes":{},"cudagraph_mode":[2,1],"use_cudagraph":true,"cudagraph_num_of_warmups":1,"cudagraph_capture_sizes":[512,504,496,488,480,472,464,456,448,440,432,424,416,408,400,392,384,376,368,360,352,344,336,328,320,312,304,296,288,280,272,264,256,248,240,232,224,216,208,200,192,184,176,168,160,152,144,136,128,120,112,104,96,88,80,72,64,56,48,40,32,24,16,8,4,2,1],"cudagraph_copy_inputs":false,"full_cuda_graph":false,"use_inductor_graph_partition":false,"pass_config":{},"max_capture_size":512,"local_cache_dir":null}
+[Gloo] Rank 0 is connected to 0 peer ranks. Expected number of connected peer ranks is : 0
+[Gloo] Rank 0 is connected to 0 peer ranks. Expected number of connected peer ranks is : 0
+[Gloo] Rank 0 is connected to 0 peer ranks. Expected number of connected peer ranks is : 0
+[Gloo] Rank 0 is connected to 0 peer ranks. Expected number of connected peer ranks is : 0
+[Gloo] Rank 0 is connected to 0 peer ranks. Expected number of connected peer ranks is : 0
+[Gloo] Rank 0 is connected to 0 peer ranks. Expected number of connected peer ranks is : 0
+[1;36m(EngineCore_DP0 pid=25734)[0;0m INFO 09-11 03:57:06 [parallel_state.py:1208] rank 0 in world size 1 is assigned as DP rank 0, PP rank 0, TP rank 0, EP rank 0
+[1;36m(EngineCore_DP0 pid=25734)[0;0m WARNING 09-11 03:57:06 [topk_topp_sampler.py:66] FlashInfer is not available. Falling back to the PyTorch-native implementation of top-p & top-k sampling. For the best performance, please install FlashInfer.
+[1;36m(EngineCore_DP0 pid=25734)[0;0m INFO 09-11 03:57:07 [gpu_model_runner.py:2602] Starting to load model /workspace/.cache/huggingface/hub/models--Qwen--Qwen3-8B/snapshots/b968826d9c46dd6066d109eabc6255188de91218...
+[1;36m(EngineCore_DP0 pid=25734)[0;0m INFO 09-11 03:57:07 [gpu_model_runner.py:2634] Loading model from scratch...
+[1;36m(EngineCore_DP0 pid=25734)[0;0m INFO 09-11 03:57:07 [cuda.py:366] Using Flash Attention backend on V1 engine.
+[1;36m(EngineCore_DP0 pid=25734)[0;0m Loading safetensors checkpoint shards:   0% Completed | 0/5 [00:00<?, ?it/s]
+[1;36m(EngineCore_DP0 pid=25734)[0;0m Loading safetensors checkpoint shards:  20% Completed | 1/5 [00:01<00:07,  1.79s/it]
+[1;36m(EngineCore_DP0 pid=25734)[0;0m Loading safetensors checkpoint shards:  40% Completed | 2/5 [00:05<00:08,  2.98s/it]
+[1;36m(EngineCore_DP0 pid=25734)[0;0m Loading safetensors checkpoint shards:  60% Completed | 3/5 [00:10<00:07,  3.94s/it]
+[1;36m(EngineCore_DP0 pid=25734)[0;0m Loading safetensors checkpoint shards:  80% Completed | 4/5 [00:16<00:04,  4.74s/it]
+[1;36m(EngineCore_DP0 pid=25734)[0;0m Loading safetensors checkpoint shards: 100% Completed | 5/5 [00:22<00:00,  5.01s/it]
+[1;36m(EngineCore_DP0 pid=25734)[0;0m Loading safetensors checkpoint shards: 100% Completed | 5/5 [00:22<00:00,  4.43s/it]
+[1;36m(EngineCore_DP0 pid=25734)[0;0m 
+[1;36m(EngineCore_DP0 pid=25734)[0;0m INFO 09-11 03:57:30 [default_loader.py:267] Loading weights took 22.25 seconds
+[1;36m(EngineCore_DP0 pid=25734)[0;0m INFO 09-11 03:57:31 [gpu_model_runner.py:2653] Model loading took 15.2683 GiB and 23.413641 seconds
+[1;36m(EngineCore_DP0 pid=25734)[0;0m INFO 09-11 03:57:55 [backends.py:548] Using cache directory: /root/.cache/vllm/torch_compile_cache/ed5bb7191d/rank_0_0/backbone for vLLM's torch.compile
+[1;36m(EngineCore_DP0 pid=25734)[0;0m INFO 09-11 03:57:55 [backends.py:559] Dynamo bytecode transform time: 23.23 s
+[1;36m(EngineCore_DP0 pid=25734)[0;0m INFO 09-11 03:57:56 [backends.py:164] Directly load the compiled graph(s) for dynamic shape from the cache, took 1.582 s
+[1;36m(EngineCore_DP0 pid=25734)[0;0m INFO 09-11 03:57:57 [monitor.py:34] torch.compile takes 23.23 s in total
+[1;36m(EngineCore_DP0 pid=25734)[0;0m INFO 09-11 03:57:59 [gpu_worker.py:298] Available KV cache memory: 4.64 GiB
+[1;36m(EngineCore_DP0 pid=25734)[0;0m INFO 09-11 03:58:00 [kv_cache_utils.py:1087] GPU KV cache size: 33,808 tokens
+[1;36m(EngineCore_DP0 pid=25734)[0;0m INFO 09-11 03:58:00 [kv_cache_utils.py:1091] Maximum concurrency for 32,768 tokens per request: 1.03x
+[1;36m(EngineCore_DP0 pid=25734)[0;0m Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):   0%|          | 0/67 [00:00<?, ?it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):   3%|▎         | 2/67 [00:00<00:04, 15.97it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):   6%|▌         | 4/67 [00:00<00:03, 16.29it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):   9%|▉         | 6/67 [00:00<00:03, 16.63it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):  12%|█▏        | 8/67 [00:00<00:03, 16.84it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):  15%|█▍        | 10/67 [00:00<00:03, 16.26it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):  18%|█▊        | 12/67 [00:00<00:03, 16.60it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):  21%|██        | 14/67 [00:00<00:03, 16.74it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):  24%|██▍       | 16/67 [00:00<00:02, 17.01it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):  27%|██▋       | 18/67 [00:01<00:02, 17.71it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):  30%|██▉       | 20/67 [00:01<00:02, 18.18it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):  33%|███▎      | 22/67 [00:01<00:02, 18.57it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):  36%|███▌      | 24/67 [00:01<00:02, 18.75it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):  39%|███▉      | 26/67 [00:01<00:02, 18.99it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):  42%|████▏     | 28/67 [00:01<00:02, 19.11it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):  45%|████▍     | 30/67 [00:01<00:01, 19.26it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):  48%|████▊     | 32/67 [00:01<00:01, 19.32it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):  52%|█████▏    | 35/67 [00:01<00:01, 21.81it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):  57%|█████▋    | 38/67 [00:02<00:01, 23.41it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):  61%|██████    | 41/67 [00:02<00:01, 24.54it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):  66%|██████▌   | 44/67 [00:02<00:00, 25.14it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):  70%|███████   | 47/67 [00:02<00:00, 25.81it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):  75%|███████▍  | 50/67 [00:02<00:00, 26.88it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):  81%|████████  | 54/67 [00:02<00:00, 28.06it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):  85%|████████▌ | 57/67 [00:02<00:00, 24.75it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):  91%|█████████ | 61/67 [00:02<00:00, 26.79it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):  96%|█████████▌| 64/67 [00:02<00:00, 26.64it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE): 100%|██████████| 67/67 [00:03<00:00, 21.62it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE): 100%|██████████| 67/67 [00:03<00:00, 21.12it/s]
+[1;36m(EngineCore_DP0 pid=25734)[0;0m Capturing CUDA graphs (decode, FULL):   0%|          | 0/35 [00:00<?, ?it/s]Capturing CUDA graphs (decode, FULL):   3%|▎         | 1/35 [00:00<00:10,  3.22it/s]Capturing CUDA graphs (decode, FULL):  11%|█▏        | 4/35 [00:00<00:02, 10.79it/s]Capturing CUDA graphs (decode, FULL):  20%|██        | 7/35 [00:00<00:01, 15.48it/s]Capturing CUDA graphs (decode, FULL):  29%|██▊       | 10/35 [00:00<00:01, 18.53it/s]Capturing CUDA graphs (decode, FULL):  37%|███▋      | 13/35 [00:00<00:01, 20.80it/s]Capturing CUDA graphs (decode, FULL):  46%|████▌     | 16/35 [00:00<00:00, 22.54it/s]Capturing CUDA graphs (decode, FULL):  54%|█████▍    | 19/35 [00:01<00:00, 24.34it/s]Capturing CUDA graphs (decode, FULL):  66%|██████▌   | 23/35 [00:01<00:00, 26.39it/s]Capturing CUDA graphs (decode, FULL):  77%|███████▋  | 27/35 [00:01<00:00, 27.58it/s]Capturing CUDA graphs (decode, FULL):  89%|████████▊ | 31/35 [00:01<00:00, 29.57it/s]Capturing CUDA graphs (decode, FULL): 100%|██████████| 35/35 [00:01<00:00, 31.43it/s]Capturing CUDA graphs (decode, FULL): 100%|██████████| 35/35 [00:01<00:00, 23.31it/s]
+[1;36m(EngineCore_DP0 pid=25734)[0;0m INFO 09-11 03:58:05 [gpu_model_runner.py:3480] Graph capturing finished in 5 secs, took 0.75 GiB
+[1;36m(EngineCore_DP0 pid=25734)[0;0m INFO 09-11 03:58:05 [core.py:210] init engine (profile, create kv cache, warmup model) took 34.18 seconds
+INFO 09-11 03:58:06 [llm.py:306] Supported_tasks: ['generate']
+Traceback (most recent call last):
+  File "/workspace/qrank/qrank/outputs/verifier-grounded-smoke-20260911/run.py", line 41, in <module>
+    main()
+  File "/workspace/qrank/qrank/outputs/verifier-grounded-smoke-20260911/run.py", line 31, in main
+    results = verifier.verify_candidates(**task)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/qrank/qrank/src/qrank/verifier/api.py", line 91, in verify_candidates
+    return verify_many(
+           ^^^^^^^^^^^^
+  File "/workspace/qrank/qrank/src/qrank/verifier/workflow.py", line 99, in verify_many
+    contracts = complete_requests(extractions, backend, cache, batch_size, audit_path, "requirements")
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/qrank/qrank/src/qrank/verifier/workflow.py", line 52, in complete_requests
+    responses = backend.generate_batch(batch)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/qrank/qrank/src/qrank/llms/vllm.py", line 118, in generate_batch
+    outputs = self.lm.generate(
+              ^^^^^^^^^^^^^^^^^
+  File "/workspace/qrank/qrank/.venv/lib/python3.12/site-packages/vllm/entrypoints/llm.py", line 393, in generate
+    self._validate_and_add_requests(
+  File "/workspace/qrank/qrank/.venv/lib/python3.12/site-packages/vllm/entrypoints/llm.py", line 1516, in _validate_and_add_requests
+    self._add_request(
+  File "/workspace/qrank/qrank/.venv/lib/python3.12/site-packages/vllm/entrypoints/llm.py", line 1569, in _add_request
+    self.llm_engine.add_request(
+  File "/workspace/qrank/qrank/.venv/lib/python3.12/site-packages/vllm/v1/engine/llm_engine.py", line 230, in add_request
+    prompt_str, request = self.processor.process_inputs(
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/qrank/qrank/.venv/lib/python3.12/site-packages/vllm/v1/engine/processor.py", line 341, in process_inputs
+    self._validate_params(params)
+  File "/workspace/qrank/qrank/.venv/lib/python3.12/site-packages/vllm/v1/engine/processor.py", line 159, in _validate_params
+    self._validate_sampling_params(params)
+  File "/workspace/qrank/qrank/.venv/lib/python3.12/site-packages/vllm/v1/engine/processor.py", line 98, in _validate_sampling_params
+    self._validate_structured_output(params)
+  File "/workspace/qrank/qrank/.venv/lib/python3.12/site-packages/vllm/v1/engine/processor.py", line 259, in _validate_structured_output
+    validate_xgrammar_grammar(params)
+  File "/workspace/qrank/qrank/.venv/lib/python3.12/site-packages/vllm/v1/structured_output/backend_xgrammar.py", line 292, in validate_xgrammar_grammar
+    raise ValueError("The provided JSON schema contains features not "
+ValueError: The provided JSON schema contains features not supported by xgrammar.
+ERROR 09-11 03:58:07 [core_client.py:564] Engine core proc EngineCore_DP0 died unexpectedly, shutting down client.

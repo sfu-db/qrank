@@ -1,0 +1,11 @@
+{
+  "question": "List IDs of all directly funded charter schools.",
+  "evidence": "Directly funded means Funding = 'D'. Charter schools means Charter = 1.",
+  "context": "CREATE TABLE schools (id INTEGER PRIMARY KEY, Funding TEXT, Charter INTEGER)",
+  "sql_dialect": "sqlite",
+  "candidates": [
+    "SELECT id FROM schools WHERE Charter = 1 AND Funding = 'D'",
+    "SELECT id FROM schools WHERE Charter = 1",
+    "WITH funded AS (SELECT id, Charter FROM schools WHERE Funding = 'D') SELECT id FROM funded WHERE Charter = 1"
+  ]
+}

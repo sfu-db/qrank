@@ -1,0 +1,202 @@
+{
+  "created_utc": "2026-09-10T23:07:40.368018+00:00",
+  "dataset": {
+    "name": "prepbench_agr_q_m5",
+    "path": "dataset/raw/matrix_k2_g4.7_q3-235b_ds_dev_prepbench_m5",
+    "split": "test",
+    "limit": null
+  },
+  "backend": {
+    "backend": "vllm",
+    "model": "Qwen/Qwen3-8B",
+    "revision": "main",
+    "resolved_revision": "b968826d9c46dd6066d109eabc6255188de91218",
+    "device": "cuda",
+    "dtype": "torch.bfloat16",
+    "temperature": 0.0,
+    "max_tokens": 2048,
+    "enable_thinking": false,
+    "top_p": 1.0,
+    "top_k": 0,
+    "vllm_version": "0.11.0",
+    "generation_config": "vllm",
+    "tensor_parallel_size": 1,
+    "gpu_memory_utilization": 0.85,
+    "enable_prefix_caching": true,
+    "quantization": null,
+    "seed": 0,
+    "max_model_len": 32768
+  },
+  "batch_size": 16,
+  "oracle_policy": {
+    "allocation": "deferrals_first_then_lowest_confidence",
+    "tie_breaker": "dataset_order",
+    "budget_ratio": 0.2,
+    "budget_count": null
+  },
+  "n_rows": 306,
+  "status_counts": {
+    "ok": 245,
+    "oracle": 61,
+    "fallback": 0,
+    "no_valid_candidates": 0
+  },
+  "metrics": {
+    "n_rows_with_labels": 306,
+    "n_rows_evaluated": 306,
+    "n_rows_missing_correctness": 0,
+    "evaluation_status": "complete",
+    "llm_only_accuracy": 0.6448979591836734,
+    "llm_only_denominator": 245,
+    "end_to_end_accuracy": 0.7156862745098039,
+    "end_to_end_denominator": 306,
+    "evaluated_accuracy": 0.7156862745098039,
+    "evaluation_coverage": 1.0,
+    "oracle_usage_rate": 0.19934640522875818,
+    "oracle_calls": 61,
+    "oracle_requested": 0
+  },
+  "budget_sweep": [
+    {
+      "budget_ratio": 0.0,
+      "effective_budget": 0,
+      "metrics": {
+        "n_rows_with_labels": 306,
+        "n_rows_evaluated": 306,
+        "n_rows_missing_correctness": 0,
+        "evaluation_status": "complete",
+        "llm_only_accuracy": 0.6666666666666666,
+        "llm_only_denominator": 306,
+        "end_to_end_accuracy": 0.6666666666666666,
+        "end_to_end_denominator": 306,
+        "evaluated_accuracy": 0.6666666666666666,
+        "evaluation_coverage": 1.0,
+        "oracle_usage_rate": 0.0,
+        "oracle_calls": 0,
+        "oracle_requested": 0
+      },
+      "selection_file": "selections.budget_0.jsonl"
+    },
+    {
+      "budget_ratio": 0.05,
+      "effective_budget": 15,
+      "metrics": {
+        "n_rows_with_labels": 306,
+        "n_rows_evaluated": 306,
+        "n_rows_missing_correctness": 0,
+        "evaluation_status": "complete",
+        "llm_only_accuracy": 0.6563573883161512,
+        "llm_only_denominator": 291,
+        "end_to_end_accuracy": 0.673202614379085,
+        "end_to_end_denominator": 306,
+        "evaluated_accuracy": 0.673202614379085,
+        "evaluation_coverage": 1.0,
+        "oracle_usage_rate": 0.049019607843137254,
+        "oracle_calls": 15,
+        "oracle_requested": 0
+      },
+      "selection_file": "selections.budget_1.jsonl"
+    },
+    {
+      "budget_ratio": 0.1,
+      "effective_budget": 30,
+      "metrics": {
+        "n_rows_with_labels": 306,
+        "n_rows_evaluated": 306,
+        "n_rows_missing_correctness": 0,
+        "evaluation_status": "complete",
+        "llm_only_accuracy": 0.6557971014492754,
+        "llm_only_denominator": 276,
+        "end_to_end_accuracy": 0.6895424836601307,
+        "end_to_end_denominator": 306,
+        "evaluated_accuracy": 0.6895424836601307,
+        "evaluation_coverage": 1.0,
+        "oracle_usage_rate": 0.09803921568627451,
+        "oracle_calls": 30,
+        "oracle_requested": 0
+      },
+      "selection_file": "selections.budget_2.jsonl"
+    },
+    {
+      "budget_ratio": 0.2,
+      "effective_budget": 61,
+      "metrics": {
+        "n_rows_with_labels": 306,
+        "n_rows_evaluated": 306,
+        "n_rows_missing_correctness": 0,
+        "evaluation_status": "complete",
+        "llm_only_accuracy": 0.6448979591836734,
+        "llm_only_denominator": 245,
+        "end_to_end_accuracy": 0.7156862745098039,
+        "end_to_end_denominator": 306,
+        "evaluated_accuracy": 0.7156862745098039,
+        "evaluation_coverage": 1.0,
+        "oracle_usage_rate": 0.19934640522875818,
+        "oracle_calls": 61,
+        "oracle_requested": 0
+      },
+      "selection_file": "selections.budget_3.jsonl"
+    },
+    {
+      "budget_ratio": 0.3,
+      "effective_budget": 91,
+      "metrics": {
+        "n_rows_with_labels": 306,
+        "n_rows_evaluated": 306,
+        "n_rows_missing_correctness": 0,
+        "evaluation_status": "complete",
+        "llm_only_accuracy": 0.6372093023255814,
+        "llm_only_denominator": 215,
+        "end_to_end_accuracy": 0.7450980392156863,
+        "end_to_end_denominator": 306,
+        "evaluated_accuracy": 0.7450980392156863,
+        "evaluation_coverage": 1.0,
+        "oracle_usage_rate": 0.2973856209150327,
+        "oracle_calls": 91,
+        "oracle_requested": 0
+      },
+      "selection_file": "selections.budget_4.jsonl"
+    },
+    {
+      "budget_ratio": 0.5,
+      "effective_budget": 153,
+      "metrics": {
+        "n_rows_with_labels": 306,
+        "n_rows_evaluated": 306,
+        "n_rows_missing_correctness": 0,
+        "evaluation_status": "complete",
+        "llm_only_accuracy": 0.6535947712418301,
+        "llm_only_denominator": 153,
+        "end_to_end_accuracy": 0.826797385620915,
+        "end_to_end_denominator": 306,
+        "evaluated_accuracy": 0.826797385620915,
+        "evaluation_coverage": 1.0,
+        "oracle_usage_rate": 0.5,
+        "oracle_calls": 153,
+        "oracle_requested": 0
+      },
+      "selection_file": "selections.budget_5.jsonl"
+    },
+    {
+      "budget_ratio": 1.0,
+      "effective_budget": 306,
+      "metrics": {
+        "n_rows_with_labels": 306,
+        "n_rows_evaluated": 306,
+        "n_rows_missing_correctness": 0,
+        "evaluation_status": "complete",
+        "llm_only_accuracy": null,
+        "llm_only_denominator": 0,
+        "end_to_end_accuracy": 1.0,
+        "end_to_end_denominator": 306,
+        "evaluated_accuracy": 1.0,
+        "evaluation_coverage": 1.0,
+        "oracle_usage_rate": 1.0,
+        "oracle_calls": 306,
+        "oracle_requested": 0
+      },
+      "selection_file": "selections.budget_6.jsonl"
+    }
+  ],
+  "selection_file": "selections.jsonl"
+}

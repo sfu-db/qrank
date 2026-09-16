@@ -10,6 +10,7 @@ from qrank.llms import LLMBackend, load_backend
 from .cache import SQLiteCache
 from .context import build_context
 from .models import ClusterInput, QuestionInput, VerificationResult
+from .overall import OverallResult, verify_overall_questions
 from .workflow import verify_many
 from .responses import PERSPECTIVES
 
@@ -93,3 +94,41 @@ class Verifier:
             self.batch_size, perspectives=(perspective,) if perspective else PERSPECTIVES,
             audit_path=self.audit_path,
         )
+
+    def verify_overall(
+        self, question: str, candidate: str, *, context: str = "",
+        evidence: str = "", task_type: str = "auto", sql_dialect: str | None = None,
+        prompt_variant: str = "v2",
+    ) -> OverallResult:
+        """Return one overall S/U/C/NA semantic conclusion for a candidate."""
+        return self.verify_overall_candidates(
+            question, [candidate], context=context, evidence=evidence,
+            task_type=task_type, sql_dialect=sql_dialect,
+            prompt_variant=prompt_variant,
+        )[0]
+
+    def verify_overall_candidates(
+        self, question: str, candidates: Sequence[str], *, context: str = "",
+        evidence: str = "", task_type: str = "auto", sql_dialect: str | None = None,
+        prompt_variant: str = "v2",
+    ) -> list[OverallResult]:
+        """Use one question prompt with a separate verdict for each distinct text."""
+        if isinstance(candidates, (str, bytes)):
+            raise ValueError("candidates must be a sequence of strings, not a string")
+        if any(not isinstance(candidate, str) or not candidate.strip() for candidate in candidates):
+            raise ValueError("Every candidate must be a nonempty string")
+        if not candidates:
+            return []
+        task = build_context({
+            "question": question, "context": context, "evidence": evidence,
+            "candidates": [{"text": candidate} for candidate in candidates],
+        }, task_type=task_type, sql_dialect=sql_dialect)
+        clusters = tuple(ClusterInput(str(i), candidate, 1, {})
+                         for i, candidate in enumerate(candidates))
+        q = QuestionInput("", task.question, task.evidence, task.context,
+                          "", "", clusters, {}, task.task_type, task.sql_dialect)
+        return verify_overall_questions(
+            [q], self.backend, self.cache,
+            self.batch_size, audit_path=self.audit_path,
+            prompt_variant=prompt_variant,
+        )[0]

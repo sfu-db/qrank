@@ -35,6 +35,9 @@ def detect_task_type(row: Mapping[str, Any], task_type: str = "auto") -> str:
     declared = row.get("task_type") or metadata.get("task_type")
     if declared:
         return detect_task_type(row, str(declared)) if declared != "auto" else "text-to-sql"
+    setting = row.get("setting")
+    if isinstance(setting, str) and "prep" in setting.lower() and "code" in setting.lower():
+        return "prepbench"
     if any(re.search(r"\bdef\s+solve\s*\(\s*tables\b", c.get("text", ""))
            for c in row.get("candidates", [])):
         return "prepbench"
@@ -50,9 +53,9 @@ def build_context(
 ) -> VerificationContext:
     """Only task fields and optional input CSVs are exposed; never gold outputs.
 
-    PrepBench CSV layout: <root>/<question_id>/inputs/*.csv. Read headers and
-    at most five records per file. Values are kept as text; no dtype inference
-    or candidate execution is performed.
+    PrepBench CSV layout: <root>/<case_id>/inputs/*.csv (falling back to
+    question_id). Read headers and at most five records per file. Values are
+    kept as text; no dtype inference or candidate execution is performed.
     """
     kind = detect_task_type(row, task_type)
     if not isinstance(row.get("question"), str) or not row["question"].strip():
@@ -90,9 +93,10 @@ def build_context(
             parts.append(context)
         if prepbench_root is not None:
             root = Path(prepbench_root).resolve()
-            case = (root / str(row["question_id"]) / "inputs").resolve()
+            case_id = row.get("case_id", row["question_id"])
+            case = (root / str(case_id) / "inputs").resolve()
             if not case.is_relative_to(root):
-                raise ValueError("PrepBench question_id must stay within --prepbench-root")
+                raise ValueError("PrepBench case ID must stay within --prepbench-root")
             files = sorted(case.glob("*.csv"))
             if not files:
                 raise ValueError(f"No input CSV files found in {case}")

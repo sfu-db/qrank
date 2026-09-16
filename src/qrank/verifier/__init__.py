@@ -3,10 +3,12 @@ from .api import Verifier
 from .cache import SQLiteCache
 from .context import VerificationContext, build_context, detect_task_type
 from .models import ClusterInput, QuestionInput, RequirementSet, VerificationError, VerificationResult
+from .overall import OverallResult, verify_overall_many, verify_overall_questions
 from .pipeline import collect_questions, verify_many, verify_one
 
 __all__ = [
-    "ClusterInput", "QuestionInput", "RequirementSet", "SQLiteCache",
+    "ClusterInput", "QuestionInput", "OverallResult", "RequirementSet", "SQLiteCache",
     "VerificationContext", "VerificationError", "VerificationResult", "Verifier",
     "build_context", "collect_questions", "detect_task_type", "verify_many", "verify_one",
+    "verify_overall_many", "verify_overall_questions",
 ]

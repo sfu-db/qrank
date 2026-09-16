@@ -1,10 +1,16 @@
+import json
+from pathlib import Path
+import tempfile
 import unittest
+from unittest.mock import patch
 
-from datasets import Dataset
+from datasets import Dataset, DatasetDict, load_from_disk
 
+from qrank.judge import cli
 from qrank.judge.cli import build_parser
 from qrank.judge.pipeline import build_clusters, judge_rows, parse_choice, select_models
 from qrank.llms import LLMBackend
+from qrank.verifier.context import detect_task_type
 
 
 class FixtureBackend(LLMBackend):
@@ -89,8 +95,13 @@ class JudgeTests(unittest.TestCase):
         backend = FixtureBackend(["A"])
         result = judge_rows([row], ["CREATE TABLE t (x INT);"], backend, batch_size=1)[0]
         prompt = backend.requests[0]["user"]
+        system = backend.requests[0]["system"]
         self.assertEqual(backend.requests[0]["response_choices"], ["A", "NONE"])
+        self.assertIn("primary task is to choose the best available candidate", system)
+        self.assertIn("Return NONE only when every displayed candidate", system)
         self.assertIn("Candidate A:\nSELECT x FROM t", prompt)
+        self.assertIn("Only one candidate is displayed. Return A unless", prompt)
+        self.assertIn("Uncertainty by itself is not an error", prompt)
         self.assertNotIn("BAD SQL", prompt)
         self.assertNotIn("SELECT t.x", prompt)
         self.assertNotIn("SECRET_SOURCE", prompt)
@@ -138,6 +149,81 @@ class JudgeTests(unittest.TestCase):
         self.assertEqual(annotated.column_names, source.column_names + ["qwen_judge"])
         self.assertEqual(annotated[0]["qwen_judge"]["selected_identifier"], "A")
         self.assertEqual(annotated[0]["candidates"], source[0]["candidates"])
+
+    def test_prepbench_matrix_detection_and_in_memory_enrichment(self):
+        matrix_row = {
+            "case_id": "case_001",
+            "setting": "Prep-Code Generation",
+            "models": ["model-a", "model-b"],
+            "agreement": [[1, 0], [0, 1]],
+            "labels": [1, 0],
+            "valid_models": ["model-a", "model-b"],
+            "invalid_models": [],
+            "answer_features": [[0], [0]],
+            "feature_names": ["invalid_models"],
+            "question_id": 1,
+            "question": "case_001",
+        }
+        self.assertEqual(detect_task_type(matrix_row), "prepbench")
+        export_row = {
+            "question_id": "case_001",
+            "question": "Clean the input and write output_01.csv.",
+            "candidates": [
+                {"source": "model-a", "text": "def solve(tables):\n return {'output_01.csv': tables['input.csv']}"},
+                {"source": "model-b", "text": "def solve(tables):\n return {}"},
+            ],
+        }
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            source = root / "matrix"
+            output = root / "judged"
+            export = root / "prepbench.jsonl"
+            DatasetDict({"test": Dataset.from_list([matrix_row])}).save_to_disk(str(source))
+            export.write_text(json.dumps(export_row) + "\n", encoding="utf-8")
+            args = build_parser().parse_args([
+                "--config", "training_configs/judge_qwen2p5_coder_7b_vllm.json",
+                "--models", "model-a", "model-b",
+                "--input", str(source), "--output", str(output),
+                "--prepbench-jsonl", str(export),
+            ])
+            backend = FixtureBackend(["A"])
+            with patch.object(cli, "load_database_schemas",
+                              side_effect=AssertionError("database schema discovery")), \
+                 patch.object(cli, "load_database_descriptions",
+                              side_effect=AssertionError("database description discovery")), \
+                 patch.object(cli, "load_backend", return_value=backend):
+                manifest = cli.run(args)
+
+            self.assertEqual(manifest["task_types"], ["prepbench"])
+            prompt = backend.requests[0]
+            self.assertIn("Python/pandas programs", prompt["system"])
+            self.assertIn("Data-preparation task", prompt["user"])
+            self.assertIn("Input table schemas, samples, and runtime dtypes were not provided", prompt["user"])
+            self.assertNotIn("Database context/schema", prompt["user"])
+            result = load_from_disk(str(output))["test"][0]
+            self.assertEqual(result["task_type"], "prepbench")
+            self.assertEqual([candidate["source"] for candidate in result["candidates"]],
+                             ["model-a", "model-b"])
+            self.assertEqual(result["qwen_judge"]["selected_identifier"], "A")
+
+    def test_bare_prepbench_matrix_explains_required_export(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            source = root / "matrix"
+            row = {
+                "case_id": "case_001", "setting": "Prep-Code Generation",
+                "models": ["model-a"], "agreement": [[1]], "labels": [1],
+                "answer_features": [[0]], "feature_names": ["invalid_models"],
+                "question_id": 1, "question": "case_001",
+            }
+            DatasetDict({"test": Dataset.from_list([row])}).save_to_disk(str(source))
+            args = build_parser().parse_args([
+                "--config", "training_configs/judge_qwen2p5_coder_7b_vllm.json",
+                "--models", "model-a", "--input", str(source),
+                "--output", str(root / "judged"),
+            ])
+            with self.assertRaisesRegex(ValueError, "--prepbench-jsonl"):
+                cli.run(args)
 
 
 if __name__ == "__main__":

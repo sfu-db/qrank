@@ -11,12 +11,13 @@ supplies model order, agreement, labels, and validity.
 from __future__ import annotations
 
 import argparse
-import json
 from pathlib import Path
 import sys
 from typing import Sequence
 
-from datasets import Dataset, DatasetDict, Features, List, Value, load_from_disk
+from datasets import Dataset, DatasetDict, Features, load_from_disk
+
+from qrank.dataset.prepbench import TRANSFORMED_FEATURES, load_exports, transform_row
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -24,91 +25,6 @@ DEFAULT_INPUT = ROOT / (
     "dataset/raw/matrix_kimi-k2_glm-4.7_qwen3-235b-a22b_"
     "deepseek-v3.2_devstral-2512_prepbench_m5"
 )
-TRANSFORMED_FEATURES = Features({
-    "question": Value("string"),
-    "task_type": Value("string"),
-    "labels": List(Value("bool")),
-    "candidates": List({
-        "source": Value("string"),
-        "text": Value("string"),
-        "invalid_mask": Value("bool"),
-        "features": List(Value("float64")),
-    }),
-})
-
-
-def load_exports(path: Path) -> dict[str, dict]:
-    """Index JSONL task text and code by case ID."""
-    exports = {}
-    with path.open(encoding="utf-8") as stream:
-        for line in stream:
-            if not line.strip():
-                continue
-            row = json.loads(line)
-            case_id = str(row["question_id"])
-            if case_id in exports:
-                raise ValueError(f"Duplicate PrepBench case {case_id!r} in {path}")
-            exports[case_id] = row
-    return exports
-
-
-def transform_row(row: dict, exports: dict[str, dict]) -> dict:
-    """Build candidate fields in matrix model order, preserving label alignment."""
-    case_id = str(row["case_id"])
-    if case_id not in exports:
-        raise ValueError(f"PrepBench case {case_id!r} is missing from the JSONL export")
-    export = exports[case_id]
-    question = export.get("question")
-    if not isinstance(question, str) or not question.strip():
-        raise ValueError(f"PrepBench case {case_id!r} has no task text")
-    by_model = {}
-    for candidate in export["candidates"]:
-        model = candidate["source"]
-        if model in by_model:
-            raise ValueError(f"PrepBench case {case_id!r} has duplicate model {model!r}")
-        by_model[model] = candidate
-
-    models = row["models"]
-    n = len(models)
-    if len(set(models)) != n:
-        raise ValueError(f"PrepBench case {case_id!r} has duplicate matrix models")
-    agreement = row["agreement"]
-    if len(agreement) != n or any(len(values) != n for values in agreement):
-        raise ValueError(f"PrepBench case {case_id!r}: agreement shape mismatch")
-    features = row["answer_features"]
-    if len(features) != n or any(len(values) != len(row["feature_names"]) for values in features):
-        raise ValueError(f"PrepBench case {case_id!r}: answer feature shape mismatch")
-    labels = row["labels"]
-    if len(labels) != n or any(label not in (None, 0, 1) for label in labels):
-        raise ValueError(f"PrepBench case {case_id!r}: expected one binary label per model")
-
-    invalid = set(row.get("invalid_models") or [])
-    candidates = []
-    for i, model in enumerate(models):
-        candidate = by_model.get(model)
-        if candidate is None and model not in invalid:
-            raise ValueError(f"PrepBench case {case_id!r} is missing code for model {model!r}")
-        text = candidate.get("text") if candidate is not None else ""
-        if not isinstance(text, str):
-            raise ValueError(f"PrepBench case {case_id!r}, model {model!r}: text must be a string")
-        candidates.append({
-            "source": model,
-            "text": text,
-            "invalid_mask": (
-                model in invalid or not text.strip() or bool((candidate or {}).get("invalid_mask", False))
-            ),
-            "features": [float(value) for value in features[i]],
-        })
-
-    # Dataset.map keeps the matrix fields; only these fields are added/replaced.
-    return {
-        "question": question,
-        "task_type": "prepbench",
-        "candidates": candidates,
-        "labels": [None if label is None else bool(label) for label in labels],
-    }
-
-
 def transform_dataset(
     dataset: DatasetDict, exports: dict[str, dict], *,
     split: str | None = None, limit: int | None = None,

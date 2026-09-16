@@ -60,6 +60,11 @@ class ContextTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, 'within'):
                 build_context({**row, 'question_id': '../../escape'}, prepbench_root=tmp)
 
+            # Matrix rows retain a numeric question_id but use case_id for the
+            # PrepBench input directory and export join.
+            matrix_row = {**row, 'question_id': 1, 'case_id': 'case_001'}
+            self.assertIn('blue', build_context(matrix_row, prepbench_root=tmp).context)
+
     def test_prepbench_jsonl_alignment_prompt_and_cache(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)

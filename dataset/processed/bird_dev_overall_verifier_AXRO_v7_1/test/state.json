@@ -1,0 +1,25 @@
+{
+  "_data_files": [
+    {
+      "filename": "data-00000-of-00001.arrow"
+    }
+  ],
+  "_fingerprint": "1e58277c15fd914b",
+  "_format_columns": [
+    "question_id",
+    "question",
+    "evidence",
+    "candidates",
+    "feature_names",
+    "agreement",
+    "context",
+    "group_id",
+    "metadata",
+    "labels",
+    "semantic_verifier_overall"
+  ],
+  "_format_kwargs": {},
+  "_format_type": null,
+  "_output_all_columns": false,
+  "_split": null
+}

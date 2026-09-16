@@ -120,6 +120,15 @@ def dataset_questions(args: argparse.Namespace):
         if args.limit <= 0:
             raise VerificationError("--limit must be positive")
         split = split.select(range(min(args.limit, len(split))))
+    models = getattr(args, "models", None)
+    if models is not None:
+        # Reuse the judge's exact model lookup, invalid filtering, and agreement
+        # submatrix rule. All downstream cluster indices refer to this new row.
+        from qrank.judge.pipeline import select_models
+
+        split = Dataset.from_list(
+            [select_models(row, models) for row in split], features=split.features,
+        )
     task_type = getattr(args, "task_type", "auto")
     kinds = [detect_task_type(row, task_type) for row in split]
     schemas = load_database_schemas(args) if "text-to-sql" in kinds else {}

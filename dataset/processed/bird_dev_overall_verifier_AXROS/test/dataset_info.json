@@ -1,0 +1,119 @@
+{
+  "citation": "",
+  "description": "",
+  "features": {
+    "question_id": {
+      "dtype": "int64",
+      "_type": "Value"
+    },
+    "question": {
+      "dtype": "large_string",
+      "_type": "Value"
+    },
+    "evidence": {
+      "dtype": "large_string",
+      "_type": "Value"
+    },
+    "candidates": {
+      "feature": {
+        "features": {
+          "feature": {
+            "dtype": "float64",
+            "_type": "Value"
+          },
+          "_type": "List"
+        },
+        "invalid_mask": {
+          "dtype": "bool",
+          "_type": "Value"
+        },
+        "source": {
+          "dtype": "string",
+          "_type": "Value"
+        },
+        "text": {
+          "dtype": "string",
+          "_type": "Value"
+        }
+      },
+      "_type": "List"
+    },
+    "feature_names": {
+      "feature": {
+        "dtype": "string",
+        "_type": "Value"
+      },
+      "_type": "List"
+    },
+    "agreement": {
+      "feature": {
+        "feature": {
+          "dtype": "int64",
+          "_type": "Value"
+        },
+        "_type": "List"
+      },
+      "_type": "List"
+    },
+    "context": {
+      "dtype": "string",
+      "_type": "Value"
+    },
+    "group_id": {
+      "dtype": "string",
+      "_type": "Value"
+    },
+    "metadata": {
+      "dataset_type": {
+        "dtype": "string",
+        "_type": "Value"
+      },
+      "db_id": {
+        "dtype": "string",
+        "_type": "Value"
+      },
+      "difficulty": {
+        "dtype": "string",
+        "_type": "Value"
+      }
+    },
+    "labels": {
+      "feature": {
+        "dtype": "bool",
+        "_type": "Value"
+      },
+      "_type": "List"
+    },
+    "semantic_verifier_overall": {
+      "feature": {
+        "status": {
+          "dtype": "string",
+          "_type": "Value"
+        },
+        "identifier": {
+          "dtype": "string",
+          "_type": "Value"
+        },
+        "label": {
+          "dtype": "string",
+          "_type": "Value"
+        },
+        "reason": {
+          "dtype": "string",
+          "_type": "Value"
+        },
+        "cache_key": {
+          "dtype": "string",
+          "_type": "Value"
+        },
+        "agreement_cluster_id": {
+          "dtype": "string",
+          "_type": "Value"
+        }
+      },
+      "_type": "List"
+    }
+  },
+  "homepage": "",
+  "license": ""
+}

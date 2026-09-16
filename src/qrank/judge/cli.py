@@ -1,4 +1,4 @@
-"""Command-line runner for cluster-level SQL judging."""
+"""Command-line runner for cluster-level SQL and PrepBench judging."""
 from __future__ import annotations
 
 import argparse
@@ -9,17 +9,20 @@ from dataclasses import asdict
 from pathlib import Path
 from typing import Any, Sequence
 
-from datasets import Dataset, DatasetDict, load_from_disk
+from datasets import Dataset, DatasetDict, Features, load_from_disk
 
 from qrank.config import VerifierConfig
+from qrank.dataset.prepbench import TRANSFORMED_FEATURES, load_exports, transform_row
 from qrank.llms import BackendError, load_backend
-from qrank.verifier.context import build_context, load_database_descriptions, load_database_schemas
+from qrank.verifier.context import (
+    build_context, detect_task_type, load_database_descriptions, load_database_schemas,
+)
 
 from .pipeline import judge_rows, select_models
 
 
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description="Ask a model to choose the best SQL agreement cluster")
+    parser = argparse.ArgumentParser(description="Ask a model to choose the best agreement cluster")
     parser.add_argument("--config", required=True, help="JSON model/backend config")
     parser.add_argument(
         "--models", "--model", dest="models", nargs="+", required=True,
@@ -28,6 +31,16 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--input", default="dataset/raw/bird_dev_agr_q_sql_af_AQXNRSO_ss_m7")
     parser.add_argument("--output", required=True, help="New output directory")
     parser.add_argument("--split", default="test")
+    parser.add_argument("--task-type", choices=("auto", "text-to-sql", "prepbench"), default="auto",
+                        help="infer from row metadata/code, or force the task type")
+    parser.add_argument(
+        "--prepbench-jsonl",
+        help="task/code export used to enrich a bare PrepBench matrix before judging",
+    )
+    parser.add_argument(
+        "--prepbench-root",
+        help="optional input CSV root: <root>/<case_id>/inputs/*.csv (never reads outputs)",
+    )
     parser.add_argument("--schemas", help="database-to-DDL schema.json or BIRD tables JSON")
     parser.add_argument(
         "--db-root",
@@ -64,17 +77,44 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
     split = dataset[args.split]
     if args.limit is not None:
         split = split.select(range(min(args.limit, len(split))))
-    rows = [select_models(split[index], args.models) for index in range(len(split))]
+    source_rows = [split[index] for index in range(len(split))]
+    kinds = [detect_task_type(row, args.task_type) for row in source_rows]
+    missing_candidates = [
+        str(row.get("case_id", row.get("question_id", index)))
+        for index, row in enumerate(source_rows)
+        if not isinstance(row.get("candidates"), list)
+    ]
+    if missing_candidates:
+        if any(kind != "prepbench" for kind in kinds):
+            raise ValueError("input rows without candidates can only be enriched as PrepBench")
+        if not args.prepbench_jsonl:
+            raise ValueError(
+                "the bare PrepBench matrix has no task text or candidate code; provide "
+                "--prepbench-jsonl PATH (or run scripts/prepbench/transform.py first); "
+                f"first affected case: {missing_candidates[0]!r}"
+            )
+        exports = load_exports(args.prepbench_jsonl)
+        source_rows = [
+            ({**row, **transform_row(row, exports)}
+             if not isinstance(row.get("candidates"), list) else row)
+            for row in source_rows
+        ]
+        split = Dataset.from_list(
+            source_rows, features=Features({**split.features, **TRANSFORMED_FEATURES}),
+        )
+        kinds = ["prepbench"] * len(source_rows)
+
+    rows = [select_models(row, args.models) for row in source_rows]
     split = Dataset.from_list(rows, features=split.features)
     n_valid_candidates = sum(len(row["candidates"]) for row in rows)
 
-    schemas = load_database_schemas(args)
-    descriptions = load_database_descriptions(args)
+    schemas = load_database_schemas(args) if "text-to-sql" in kinds else {}
+    descriptions = load_database_descriptions(args) if "text-to-sql" in kinds else {}
     dialect = args.sql_dialect or ("SQLite" if schemas and (args.db_root or not args.schemas) else None)
     contexts = [build_context(
-        row, task_type="text-to-sql", schemas=schemas, descriptions=descriptions,
-        sql_dialect=dialect,
-    ).context for row in rows]
+        row, task_type=kind, schemas=schemas, descriptions=descriptions,
+        prepbench_root=args.prepbench_root, sql_dialect=dialect,
+    ).context for row, kind in zip(rows, kinds, strict=True)]
 
     print(f"Loading {config.model} with backend={config.backend}", file=sys.stderr, flush=True)
     backend = load_backend(config.backend, **config.backend_options())
@@ -83,7 +123,9 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
         f"from {len(args.models)} requested models",
         file=sys.stderr, flush=True,
     )
-    results = judge_rows(rows, contexts, backend, batch_size=config.batch_size)
+    results = judge_rows(
+        rows, contexts, backend, batch_size=config.batch_size, task_types=kinds,
+    )
 
     annotations = [asdict(result) for result in results]
     annotated_split = split.add_column(args.column, annotations)
@@ -107,6 +149,9 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
                      if evaluated else None),
         "backend": backend.identity(),
         "input_models": args.models,
+        "task_types": sorted(set(kinds)),
+        "prepbench_jsonl": str(Path(args.prepbench_jsonl).resolve()) if args.prepbench_jsonl else None,
+        "prepbench_root": str(Path(args.prepbench_root).resolve()) if args.prepbench_root else None,
         "batch_size": config.batch_size,
         "annotation_column": args.column,
         "selection_unit": "first representative of each selected-model agreement cluster",

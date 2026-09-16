@@ -136,7 +136,13 @@ uv run --no-sync qrank-verifier transform-dataset --config training_configs/veri
   --output dataset/prepbench-verified --task-type prepbench
 ```
 
-SQL and PrepBench share four semantic perspectives and S/U/C/NA meanings.
+For one question-level prompt returning overall S/U/C/NA for every candidate,
+use the experimental
+[`transform-overall-dataset` workflow](docs/verifier-overall.md). It keeps the
+existing local-signal workflow and saved annotations unchanged.
+
+SQL and PrepBench share four semantic perspectives and S/U/C/NA meanings in
+the local-signal workflow.
 PrepBench retains code-level label/reason checks; SQL additionally uses grounded
 requirements, block targets, and structured evidence. Per-question context and
 candidate language labels appear in the user prompt.

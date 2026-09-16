@@ -7,7 +7,9 @@ from typing import Any, Mapping, Sequence
 
 from qrank.llms import LLMBackend
 
-from .prompts import SYSTEM_PROMPT, candidate_identifier, judge_user_prompt
+from qrank.verifier.context import detect_task_type
+
+from .prompts import candidate_identifier, judge_user_prompt, system_prompt
 
 
 @dataclass(frozen=True)
@@ -119,18 +121,24 @@ def _correctness(
 
 def judge_rows(
     rows: Sequence[Mapping[str, Any]], contexts: Sequence[str], backend: LLMBackend,
-    *, batch_size: int = 8,
+    *, batch_size: int = 8, task_types: Sequence[str] | None = None,
 ) -> list[JudgeResult]:
     """Judge rows in batches while preserving rows with no valid candidates."""
     if batch_size < 1:
         raise ValueError("batch_size must be positive")
     if len(contexts) != len(rows):
         raise ValueError("contexts must align with rows")
+    if task_types is None:
+        task_types = [detect_task_type(row) for row in rows]
+    if len(task_types) != len(rows):
+        raise ValueError("task_types must align with rows")
 
     row_clusters: list[tuple[dict[str, Any], ...]] = []
     requests: list[dict[str, Any]] = []
     request_rows: list[int] = []
-    for row_index, (row, context) in enumerate(zip(rows, contexts, strict=True)):
+    for row_index, (row, context, task_type) in enumerate(
+        zip(rows, contexts, task_types, strict=True)
+    ):
         clusters = build_clusters(row)
         row_clusters.append(clusters)
         if not clusters:
@@ -143,12 +151,13 @@ def judge_rows(
         requests.append({
             "question_id": qid,
             "cluster_id": "judge",
-            "system": SYSTEM_PROMPT,
+            "system": system_prompt(task_type),
             "user": judge_user_prompt(
                 question=question,
                 context=context,
                 evidence=str(row.get("evidence") or ""),
                 clusters=clusters,
+                task_type=task_type,
             ),
             # vLLM uses this as a constrained-decoding choice set. The model
             # cannot emit prose such as "Candidate B" when this is honored.

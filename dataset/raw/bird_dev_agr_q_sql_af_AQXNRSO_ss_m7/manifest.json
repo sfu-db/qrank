@@ -1,0 +1,15 @@
+{
+    "total": 1534,
+    "all_wrong_cases": 463,
+    "upperbound_accuracy": 0.6982,
+    "model_accuracies": {
+        "Arctic-R1-7B": 0.5209,
+        "QWen2.5-7B": 0.4146,
+        "XiYanSQL-7B": 0.5,
+        "natural-sql-6.7B": 0.3566,
+        "rnj-1-8B": 0.4133,
+        "SQLCoder-7B": 0.221,
+        "OmniSQL-7B": 0.4576
+    },
+    "timeout": 5.0
+}

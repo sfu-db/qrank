@@ -190,3 +190,60 @@ def judge_rows(
             _correctness(row, selected_index, valid_indices),
         ))
     return results
+
+
+def select_models(row: Mapping[str, Any], models: Sequence[str]) -> dict[str, Any]:
+    """Filter a row and slice its known agreement matrix to valid input models.
+
+    No candidate SQL is executed. Model names locate candidates in the input;
+    the existing ``invalid_mask`` and empty-text signal determine which located
+    candidates are omitted from the rebuilt row.
+    """
+    if not models or any(not isinstance(model, str) or not model.strip() for model in models):
+        raise ValueError("models must contain at least one non-empty model name")
+    if len(set(models)) != len(models):
+        raise ValueError("models must not contain duplicates")
+    candidates_value = row.get("candidates")
+    if not isinstance(candidates_value, list) or any(
+        not isinstance(candidate, Mapping) for candidate in candidates_value
+    ):
+        raise ValueError("candidates must be a list of objects")
+    candidates = list(candidates_value)
+    n = len(candidates)
+    input_agreement = row.get("agreement")
+    if not isinstance(input_agreement, list) or len(input_agreement) != n or any(
+        not isinstance(line, list) or len(line) != n for line in input_agreement
+    ):
+        raise ValueError("agreement must be a square matrix aligned with candidates")
+    by_source: dict[str, list[int]] = {}
+    for index, candidate in enumerate(candidates):
+        source = candidate.get("source")
+        if isinstance(source, str):
+            by_source.setdefault(source, []).append(index)
+    located: list[int] = []
+    for model in models:
+        matches = by_source.get(model, [])
+        if len(matches) != 1:
+            raise ValueError(
+                f"question {row.get('question_id')!r}: expected exactly one candidate "
+                f"from model {model!r}; found {len(matches)}"
+            )
+        located.append(matches[0])
+    selected = [
+        index for index in located
+        if not bool(candidates[index].get("invalid_mask", False))
+        and isinstance(candidates[index].get("text"), str)
+        and bool(candidates[index]["text"].strip())
+    ]
+
+    rebuilt = dict(row)
+    rebuilt["candidates"] = [dict(candidates[index]) for index in selected]
+    rebuilt["agreement"] = [
+        [int(bool(input_agreement[left][right])) for right in selected]
+        for left in selected
+    ]
+    for field in ("labels", "semantic_verifier"):
+        values = row.get(field)
+        if isinstance(values, list) and len(values) == n:
+            rebuilt[field] = [values[index] for index in selected]
+    return rebuilt

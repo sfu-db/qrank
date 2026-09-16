@@ -7,30 +7,34 @@ import json
 import sys
 from dataclasses import asdict
 from pathlib import Path
-from typing import Sequence
+from typing import Any, Sequence
 
-from datasets import DatasetDict, load_from_disk
+from datasets import Dataset, DatasetDict, load_from_disk
 
 from qrank.config import VerifierConfig
 from qrank.llms import BackendError, load_backend
 from qrank.verifier.context import build_context, load_database_descriptions, load_database_schemas
 
-from .pipeline import judge_rows
-
-
-MODEL = "Qwen/Qwen2.5-Coder-7B-Instruct"
+from .pipeline import judge_rows, select_models
 
 
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description="Ask Qwen to choose the best SQL agreement cluster")
+    parser = argparse.ArgumentParser(description="Ask a model to choose the best SQL agreement cluster")
     parser.add_argument("--config", required=True, help="JSON model/backend config")
-    parser.add_argument("--input", default="dataset/bird_dev_agr_q_sql_af_AQXRO_ss_m5")
+    parser.add_argument(
+        "--models", "--model", dest="models", nargs="+", required=True,
+        help="candidate source/model names to retain when rebuilding agreement",
+    )
+    parser.add_argument("--input", default="dataset/raw/bird_dev_agr_q_sql_af_AQXNRSO_ss_m7")
     parser.add_argument("--output", required=True, help="New output directory")
     parser.add_argument("--split", default="test")
     parser.add_argument("--schemas", help="database-to-DDL schema.json or BIRD tables JSON")
-    parser.add_argument("--db-root", help="directory containing SQLite databases")
+    parser.add_argument(
+        "--db-root",
+        help="optional directory used only for schema/description context; candidate SQL is never executed",
+    )
     parser.add_argument("--descriptions-root", help="root containing database_description CSV files")
-    parser.add_argument("--sql-dialect", help="SQL dialect; automatic BIRD discovery uses SQLite")
+    parser.add_argument("--sql-dialect", default="SQLite", help="SQL dialect for prompt context")
     parser.add_argument("--limit", type=int, help="judge only the first N rows")
     parser.add_argument("--column", default="qwen_judge",
                         help="name of the new dataset column (default: qwen_judge)")
@@ -48,19 +52,21 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
         raise ValueError(f"output directory is not empty: {output}")
     if not isinstance(args.column, str) or not args.column.strip():
         raise ValueError("--column must be non-empty")
+    if len(set(args.models)) != len(args.models):
+        raise ValueError("--models must not contain duplicates")
 
     config = VerifierConfig.from_file(args.config)
     if config.backend != "vllm":
         raise ValueError("judge config must use backend='vllm'")
-    if config.model != MODEL:
-        raise ValueError(f"judge config must use model={MODEL!r}")
     dataset = load_from_disk(args.input)
     if args.split not in dataset:
         raise ValueError(f"split {args.split!r} not found in {args.input}")
     split = dataset[args.split]
     if args.limit is not None:
         split = split.select(range(min(args.limit, len(split))))
-    rows = [split[index] for index in range(len(split))]
+    rows = [select_models(split[index], args.models) for index in range(len(split))]
+    split = Dataset.from_list(rows, features=split.features)
+    n_valid_candidates = sum(len(row["candidates"]) for row in rows)
 
     schemas = load_database_schemas(args)
     descriptions = load_database_descriptions(args)
@@ -72,7 +78,11 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
 
     print(f"Loading {config.model} with backend={config.backend}", file=sys.stderr, flush=True)
     backend = load_backend(config.backend, **config.backend_options())
-    print(f"Judging {len(rows)} questions", file=sys.stderr, flush=True)
+    print(
+        f"Judging {len(rows)} questions using {n_valid_candidates} valid candidates "
+        f"from {len(args.models)} requested models",
+        file=sys.stderr, flush=True,
+    )
     results = judge_rows(rows, contexts, backend, batch_size=config.batch_size)
 
     annotations = [asdict(result) for result in results]
@@ -90,13 +100,17 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
         "n_selected": sum(result.selected_candidate_index is not None for result in results),
         "n_none": sum(result.status == "none" for result in results),
         "n_no_valid_candidates": sum(result.status == "no_valid_candidates" for result in results),
+        "n_valid_candidates": n_valid_candidates,
+        "n_filtered_invalid_candidates": len(rows) * len(args.models) - n_valid_candidates,
         "n_evaluated": len(evaluated),
         "accuracy": (sum(bool(result.is_correct) for result in evaluated) / len(evaluated)
                      if evaluated else None),
         "backend": backend.identity(),
+        "input_models": args.models,
         "batch_size": config.batch_size,
         "annotation_column": args.column,
-        "selection_unit": "first valid representative of each agreement cluster",
+        "selection_unit": "first representative of each selected-model agreement cluster",
+        "agreement_rebuild": "valid selected-model submatrix of the input agreement",
     }
     (output / "judge.manifest.json").write_text(
         json.dumps(manifest, indent=2, ensure_ascii=False), encoding="utf-8",

@@ -1,0 +1,151 @@
+{
+  "citation": "",
+  "description": "",
+  "features": {
+    "question_id": {
+      "dtype": "int64",
+      "_type": "Value"
+    },
+    "question": {
+      "dtype": "large_string",
+      "_type": "Value"
+    },
+    "evidence": {
+      "dtype": "large_string",
+      "_type": "Value"
+    },
+    "candidates": {
+      "feature": {
+        "features": {
+          "feature": {
+            "dtype": "float64",
+            "_type": "Value"
+          },
+          "_type": "List"
+        },
+        "invalid_mask": {
+          "dtype": "bool",
+          "_type": "Value"
+        },
+        "source": {
+          "dtype": "string",
+          "_type": "Value"
+        },
+        "text": {
+          "dtype": "string",
+          "_type": "Value"
+        }
+      },
+      "_type": "List"
+    },
+    "feature_names": {
+      "feature": {
+        "dtype": "string",
+        "_type": "Value"
+      },
+      "_type": "List"
+    },
+    "agreement": {
+      "feature": {
+        "feature": {
+          "dtype": "int64",
+          "_type": "Value"
+        },
+        "_type": "List"
+      },
+      "_type": "List"
+    },
+    "context": {
+      "dtype": "string",
+      "_type": "Value"
+    },
+    "group_id": {
+      "dtype": "string",
+      "_type": "Value"
+    },
+    "metadata": {
+      "dataset_type": {
+        "dtype": "string",
+        "_type": "Value"
+      },
+      "db_id": {
+        "dtype": "string",
+        "_type": "Value"
+      },
+      "difficulty": {
+        "dtype": "string",
+        "_type": "Value"
+      }
+    },
+    "labels": {
+      "feature": {
+        "dtype": "bool",
+        "_type": "Value"
+      },
+      "_type": "List"
+    },
+    "qwen_judge": {
+      "question_id": {
+        "dtype": "string",
+        "_type": "Value"
+      },
+      "status": {
+        "dtype": "string",
+        "_type": "Value"
+      },
+      "selected_identifier": {
+        "dtype": "string",
+        "_type": "Value"
+      },
+      "selected_candidate_index": {
+        "dtype": "int64",
+        "_type": "Value"
+      },
+      "selected_candidate_indices": {
+        "feature": {
+          "dtype": "int64",
+          "_type": "Value"
+        },
+        "_type": "List"
+      },
+      "selected_sql": {
+        "dtype": "string",
+        "_type": "Value"
+      },
+      "clusters": {
+        "feature": {
+          "identifier": {
+            "dtype": "string",
+            "_type": "Value"
+          },
+          "representative_index": {
+            "dtype": "int64",
+            "_type": "Value"
+          },
+          "candidate_indices": {
+            "feature": {
+              "dtype": "int64",
+              "_type": "Value"
+            },
+            "_type": "List"
+          },
+          "representative_sql": {
+            "dtype": "string",
+            "_type": "Value"
+          }
+        },
+        "_type": "List"
+      },
+      "raw_response": {
+        "dtype": "string",
+        "_type": "Value"
+      },
+      "is_correct": {
+        "dtype": "bool",
+        "_type": "Value"
+      }
+    }
+  },
+  "homepage": "",
+  "license": ""
+}

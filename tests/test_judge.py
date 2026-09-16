@@ -2,7 +2,8 @@ import unittest
 
 from datasets import Dataset
 
-from qrank.judge.pipeline import build_clusters, judge_rows, parse_choice
+from qrank.judge.cli import build_parser
+from qrank.judge.pipeline import build_clusters, judge_rows, parse_choice, select_models
 from qrank.llms import LLMBackend
 
 
@@ -18,6 +19,42 @@ class FixtureBackend(LLMBackend):
 
 
 class JudgeTests(unittest.TestCase):
+    def test_cli_requires_models_and_defaults_to_m7_input(self):
+        args = build_parser().parse_args([
+            "--config", "config.json", "--models", "model-a", "model-b",
+            "--output", "output",
+        ])
+        self.assertEqual(args.models, ["model-a", "model-b"])
+        self.assertEqual(args.input, "dataset/raw/bird_dev_agr_q_sql_af_AQXNRSO_ss_m7")
+
+    def test_selects_input_models_and_slices_known_agreement(self):
+        row = {
+            "question_id": 4,
+            "question": "Q",
+            "candidates": [
+                {"source": "unused", "text": "OLD", "invalid_mask": False, "features": [9.0]},
+                {"source": "peer-a", "text": "SELECT 1", "invalid_mask": False, "features": [1.0]},
+                {"source": "peer-b", "text": "SELECT one", "invalid_mask": False, "features": [2.0]},
+                {"source": "bad", "text": "BAD", "invalid_mask": True, "features": [3.0]},
+            ],
+            "agreement": [
+                [1, 0, 0, 0], [0, 1, 1, 0], [0, 1, 1, 0], [0, 0, 0, 0],
+            ],
+            "labels": [False, True, True, False],
+        }
+        rebuilt = select_models(row, ["peer-b", "bad", "peer-a"])
+        self.assertEqual(
+            [candidate["source"] for candidate in rebuilt["candidates"]],
+            ["peer-b", "peer-a"],
+        )
+        self.assertEqual(rebuilt["agreement"], [[1, 1], [1, 1]])
+        self.assertEqual(rebuilt["labels"], [True, True])
+        backend = FixtureBackend(["A"])
+        result = judge_rows([rebuilt], ["schema"], backend)[0]
+        self.assertNotIn("OLD", backend.requests[0]["user"])
+        self.assertNotIn("BAD", backend.requests[0]["user"])
+        self.assertEqual(result.selected_candidate_indices, (0, 1))
+
     def test_clusters_only_valid_candidates_and_uses_one_representative(self):
         row = {
             "candidates": [
